@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"weather","l":"API_Get"},{"p":"ctrl","l":"Ctrl"},{"p":"registration","l":"LoginSystem"},{"p":"registration","l":"User"},{"p":"registration","l":"UserManager"},{"p":"welcome","l":"welcome"}];updateSearchResults();
