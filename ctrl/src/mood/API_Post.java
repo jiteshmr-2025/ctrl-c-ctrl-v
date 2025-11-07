@@ -55,35 +55,3 @@ public class API_Post {
         conn.disconnect();
         return sb.toString();
     }
-
-    // Example usage
-    public static void main(String[] args) {
-        API_Post api = new API_Post();
-
-        // Load environment variables from .env file (custom loader)
-        Map<String, String> env = EnvLoader.loadEnv(".env");
-
-        try {
-            // --- Example POST request: Perform sentiment analysis using HuggingFace model ---
-            String journalInput = "I spent my free time with my friends today. We had a great time at the park and enjoyed the sunny weather.";
-            String postUrl = "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english";
-
-            // Safely get bearer token
-            String bearerToken = env.get("BEARER_TOKEN");
-            if (bearerToken == null || bearerToken.isEmpty()) {
-                System.err.println("Error: BEARER_TOKEN is not set in the environment.");
-                return;
-            }
-
-            // Format JSON body
-            String jsonBody = "{\"inputs\": \"" + journalInput + "\"}";
-
-            // Call POST
-            String postResponse = api.post(postUrl, bearerToken, jsonBody);
-            System.out.println("\nSentiment Analysis Response:\n" + postResponse);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
