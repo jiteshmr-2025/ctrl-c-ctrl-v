@@ -5,24 +5,16 @@ package ctrl;
  */
 
 // Imports setup
-// JSON array support
+import weather.API_Get;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-// import for translator and weather
-import weather.API_Get;
 import static weather.API_Get.translateForecast;
-
-// import for welcoming user
 import static welcome.welcome.welcome_user;
-
-// import for registration
-import static registration.LoginSystem.start;
 
 
 public class Ctrl {
     public static void main(String[] args) {
-        start();
+        welcome_user();
     }
     
     

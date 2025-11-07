@@ -14,12 +14,12 @@ public class welcome {
     /**
      * Landing page for user
      * 
-     * @param username the user name that is supposed to be received from the text file
+     * username the user name that is supposed to be received from the text file
      */
-    public static void welcome_user(String username) {
+    public static void welcome_user() {
         
         // Take user name from login later
-        String name = username; // placeholder name
+        String name = "Lilith"; // placeholder name
         
         ZoneId on9 = ZoneId.of("GMT+8");
         LocalDateTime current = LocalDateTime.now(on9);
