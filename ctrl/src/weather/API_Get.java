@@ -1,25 +1,19 @@
 package weather;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 /**
  *
- * @author jites
+ * @author ekitstrap
  */
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-        
 
 public class API_Get {
 
     /**
      * Sends a GET request to the specified API URL.
-     * 
+     *
      * @param apiURL the URL to send the GET request to
      * @return the response body as a String
      * @throws Exception if the request fails
@@ -48,4 +42,33 @@ public class API_Get {
         conn.disconnect();
         return sb.toString();
     }
+
+    public static String translateForecast(String malayForecast) {
+        if (malayForecast == null) {
+            return "Unknown";
+        }
+
+        malayForecast = malayForecast.toLowerCase();
+
+        if (malayForecast.contains("tiada hujan")) {
+            return "No rain";
+        } else if (malayForecast.contains("hujan lebat")) {
+            return "Heavy rain";
+        } else if (malayForecast.contains("hujan renyai")) {
+            return "Drizzle";
+        } else if (malayForecast.contains("hujan")) {
+            return "Rain";
+        } else if (malayForecast.contains("ribut petir")) {
+            return "Thunderstorms";
+        } else if (malayForecast.contains("mendung")) {
+            return "Cloudy";
+        } else if (malayForecast.contains("cerah sebahagian")) {
+            return "Partly cloudy";
+        } else if (malayForecast.contains("cerah")) {
+            return "Sunny";
+        } else {
+            return "Unknown";
+        }
+    }
+
 }
