@@ -1,2 +1,5 @@
 /ctrl/nbproject/private/
 /ctrl/build/
+
+# Environment variables
+.env
