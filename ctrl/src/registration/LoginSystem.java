@@ -59,12 +59,10 @@ public class LoginSystem {
     }
 
     private static void welcome_user() {
-        // Call the welcome module and pass the logged-in user's display name if available.
+        // Call the welcome module and pass the logged-in user's display name.
+        // Only call when a user is logged in; don't use a default name.
         if (currentUser != null) {
             welcome.welcome.welcome_user(currentUser.getDisplayName());
-        } else {
-            // Fallback to the default welcome
-            welcome.welcome.welcome_user();
         }
     }
 
