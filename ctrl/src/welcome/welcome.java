@@ -16,11 +16,10 @@ public class welcome {
      * 
      * username the user name that is supposed to be received from the text file
      */
-    public static void welcome_user() {
-        
-        // Take user name from login later
-        String name = "Lilith"; // placeholder name
-        
+    
+
+    // Overloaded method that accepts a username so callers can pass the logged-in user's name
+    public static void welcome_user(String name) {
         ZoneId on9 = ZoneId.of("GMT+8");
         LocalDateTime current = LocalDateTime.now(on9);
         DateTimeFormatter f = DateTimeFormatter.ofPattern("'It is now' EEEE, MMMM d, yyyy 'at' h:mm a'.'");
@@ -39,6 +38,6 @@ public class welcome {
         } else {
             System.out.printf("Good evening, %s!", name);
         }
-
     }
+
 }
