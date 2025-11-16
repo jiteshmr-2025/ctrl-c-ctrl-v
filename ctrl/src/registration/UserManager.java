@@ -5,7 +5,7 @@ import java.security.*;
 import java.util.*;
 
 public class UserManager {
-    private final String filePath = "UserData.txt";
+    private final String filePath = "ctrl/src/registration/UserData.txt";
     private final ArrayList<User> users = new ArrayList<>();
 
     public UserManager() {
@@ -41,13 +41,25 @@ public class UserManager {
 
 
     private void loadUsers() {
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String email, displayName, password;
-            while ((email = br.readLine()) != null) {
-                displayName = br.readLine();
-                password = br.readLine();
-                String salt = br.readLine();
-                users.add(new User(email, displayName, password, salt));
+        File file = new File(filePath);
+        try {
+            // Create the file if it doesn't exist
+            if (!file.exists()) {
+                File parent = file.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+                file.createNewFile();
+            }
+
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String email, displayName, password;
+                while ((email = br.readLine()) != null) {
+                    displayName = br.readLine();
+                    password = br.readLine();
+                    String salt = br.readLine();
+                    users.add(new User(email, displayName, password, salt));
+                }
             }
         } catch (IOException e) {
             System.out.println("Error loading users: " + e.getMessage());
@@ -149,6 +161,16 @@ public class UserManager {
             }
         }
         return false;
+    }
+
+    // Return a user by email (or null if not found)
+    public User getUserByEmail(String email) {
+        for (User u : users) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                return u;
+            }
+        }
+        return null;
     }
 
 }

@@ -9,13 +9,14 @@ import weather.API_Get;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import static weather.API_Get.translateForecast;
-import static welcome.welcome.welcome_user;
 import mood.MoodAnalyzer;
+import registration.LoginSystem;
 
 
 public class Ctrl {
     public static void main(String[] args) {
-        welcome_user();
+        LoginSystem.start();
+        
 
 
         // Analyzing mood from journal entry

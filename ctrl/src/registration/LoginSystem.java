@@ -49,6 +49,7 @@ public class LoginSystem {
         if (user != null) {
             currentUser = user; // ✅ store logged-in user
             System.out.println("Login successful! Welcome, " + user.getDisplayName());
+            welcome_user();
             userDashboard();
             return user;
         } else {
@@ -57,8 +58,17 @@ public class LoginSystem {
         }
     }
 
+    private static void welcome_user() {
+        // Call the welcome module and pass the logged-in user's display name.
+        // Only call when a user is logged in; don't use a default name.
+        if (currentUser != null) {
+            welcome.welcome.welcome_user(currentUser.getDisplayName());
+        }
+    }
+
     //registration
     private static void register() {
+        // Get all user information first
         System.out.print("Enter Email: ");
         String email = sc.nextLine();
 
@@ -68,29 +78,34 @@ public class LoginSystem {
             return;
         }
 
-        if (userManager.emailExists(email)) {
-            System.out.println("Email already registered!");
-            return;
-        }
-
         System.out.print("Enter Display Name: ");
         String name = sc.nextLine();
 
         if (name.isEmpty()) {
-        System.out.println("Display name cannot be empty!");
-        return;
-    }
+            System.out.println("Display name cannot be empty!");
+            return;
+        }
+
         System.out.print("Enter Password: ");
         String password = sc.nextLine();
 
         if (password.isEmpty()) {
-        System.out.println("Password cannot be empty!");
-        return;
+            System.out.println("Password cannot be empty!");
+            return;
+        }
+
+        // Now check if email exists and try to register
+        if (userManager.emailExists(email)) {
+            System.out.println("Email already registered! Please try a different email.");
+            return;
         }
 
         boolean success = userManager.register(email, name, password);
-        if (success) System.out.println("Registration successful!");
-        else System.out.println("Registration failed!");
+        if (success) {
+            System.out.println("Registration successful!");
+        } else {
+            System.out.println("Registration failed!");
+        }
     }
 
     private static void userDashboard() {
@@ -140,10 +155,15 @@ public class LoginSystem {
                 }
 
                 if (userManager.editUser(email, newName, null)){
-                    currentUser = userManager.login(email, currentUser.getPassword()); // refresh first
-                    System.out.println("Display name updated!");
-                    System.out.println("Your new display name is now: " + currentUser.getDisplayName());
-                    currentUser = userManager.login(email, currentUser.getPassword());
+                    // Don't call login() with the stored hashed password — login expects the plaintext password.
+                    // Instead, fetch the updated User object directly from the manager.
+                    currentUser = userManager.getUserByEmail(email);
+                    if (currentUser != null) {
+                        System.out.println("Display name updated!");
+                        System.out.println("Your new display name is now: " + currentUser.getDisplayName());
+                    } else {
+                        System.out.println("Display name updated, but failed to refresh user data.");
+                    }
                 } // refresh user data
                 else{
                     System.out.println("User not found.");
@@ -180,5 +200,7 @@ public class LoginSystem {
                     default -> System.out.println("Invalid choice.");
         }
     }
-
+    public static void main(String[] args) {
+            start(); // this launches the main menu
+        }
 }
