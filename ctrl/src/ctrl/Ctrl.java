@@ -5,6 +5,7 @@ package ctrl;
  */
 
 // Imports setup
+
 import weather.API_Get;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,8 +18,6 @@ public class Ctrl {
     public static void main(String[] args) {
         LoginSystem.start();
         
-
-
         // Analyzing mood from journal entry
         String journalEntry = "I’m feeling really tired and unmotivated today."; // Example journal text
         String moodResult = MoodAnalyzer.analyzeMood(journalEntry); // Call the mood analysis method
