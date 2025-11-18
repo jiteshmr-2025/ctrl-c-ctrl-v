@@ -17,11 +17,6 @@ import registration.LoginSystem;
 public class Ctrl {
     public static void main(String[] args) {
         LoginSystem.start();
-        
-        // Analyzing mood from journal entry
-        String journalEntry = "I’m feeling really tired and unmotivated today."; // Example journal text
-        String moodResult = MoodAnalyzer.analyzeMood(journalEntry); // Call the mood analysis method
-        System.out.println("\nDetected mood: " + moodResult); 
     }
     
     
