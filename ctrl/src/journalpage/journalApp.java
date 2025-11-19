@@ -39,7 +39,7 @@ public class journalApp {
             
             System.out.println(index + ". View/Create journal for a custom date"); // Custom date option
             System.out.println((index+1)+". Back to Dashboard");
-            System.out.print("\nSelect a date to view/edit journal (0 to go back): ");
+            System.out.print("\nSelect a date to view/edit journal ("+(index+1)+ "to go back): ");
             int choice = getIntInput();
 
             if (choice < 1 || choice > index+1) {
