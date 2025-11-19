@@ -109,12 +109,12 @@ public class UserManager {
 
     public User login(String email, String password) {
         for (User u : users) {
-            if (u.getEmail().equals(email)) {
-            String hashedInput = hashPassword(password, u.getSalt());
-            if (u.getPassword().equals(hashedInput)) {
-                return u;
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                String hashedInput = hashPassword(password, u.getSalt());
+                if (u.getPassword().equals(hashedInput)) {
+                    return u;
+                }
             }
-        }
         }
         return null; // login failed
     }

@@ -1,11 +1,12 @@
 package registration;
 
 import java.util.Scanner;
+import journalpage.journalApp;
 
 public class LoginSystem {
     static UserManager userManager = new UserManager();
     static Scanner sc = new Scanner(System.in);
-    private static User currentUser = null;
+    public static User currentUser = null;
 
     //Login Page
     public static User start() {
@@ -39,11 +40,11 @@ public class LoginSystem {
     }
     
     //user login
-    private static User login() {
+    public static User login() {
         System.out.print("Enter Email: ");
-        String email = sc.nextLine();
+        String email = sc.nextLine().trim();
         System.out.print("Enter Password: ");
-        String password = sc.nextLine();
+        String password = sc.nextLine().trim();
 
         User user = userManager.login(email, password);
         if (user != null) {
@@ -58,7 +59,7 @@ public class LoginSystem {
         }
     }
 
-    private static void welcome_user() {
+    public static void welcome_user() {
         // Call the welcome module and pass the logged-in user's display name.
         // Only call when a user is logged in; don't use a default name.
         if (currentUser != null) {
@@ -67,10 +68,10 @@ public class LoginSystem {
     }
 
     //registration
-    private static void register() {
+    public static void register() {
         // Get all user information first
         System.out.print("Enter Email: ");
-        String email = sc.nextLine();
+        String email = sc.nextLine().trim();
 
         // ✅ Email cannot be empty and must contain ".com"
         if (email.isEmpty() || !email.contains(".com")) {
@@ -79,7 +80,7 @@ public class LoginSystem {
         }
 
         System.out.print("Enter Display Name: ");
-        String name = sc.nextLine();
+        String name = sc.nextLine().trim();
 
         if (name.isEmpty()) {
             System.out.println("Display name cannot be empty!");
@@ -108,28 +109,41 @@ public class LoginSystem {
         }
     }
 
-    private static void userDashboard() {
-    while (true) {
-        System.out.println("\n=== User Dashboard ===");
-        System.out.println("1. Modify Account");
-        System.out.println("2. Logout");
-        System.out.print("Choose option: ");
-        int opt = sc.nextInt();
-        sc.nextLine(); // consume newline
+    public static void userDashboard() {
+        while (true) {
+            System.out.println("\n=== User Dashboard ===");
+            System.out.println("1. Modify Account");
+            System.out.println("2. Open Journal");
+            System.out.println("3. Logout");
+            System.out.print("Choose option: ");
+            int opt = sc.nextInt();
+            sc.nextLine(); // consume newline
 
-        switch (opt) {
-            case 1 -> userSettings(); // pass the logged-in user
-            case 2 -> {
-                System.out.println("Logged out successfully!\n");
-                currentUser = null; // ✅ clear session
-                return; // exit the loop, go back to main menu
+            switch (opt) {
+                case 1:
+                    userSettings();
+                    break;
+                case 2:
+                    // Launch the journal application (keeps user logged in)
+                    boolean didLogout = journalpage.journalApp.runJournalApp();
+                    if (didLogout) {
+                        System.out.println("Logged out successfully!\n");
+                        currentUser = null; // clear session
+                        return; // exit back to main login menu
+                    }
+                    break;
+                case 3:
+                    System.out.println("Logged out successfully!\n");
+                    currentUser = null; // clear session
+                    return; // exit the loop, go back to main menu
+                default:
+                    System.out.println("Invalid option!");
+                    break;
             }
-            default -> System.out.println("Invalid option!");
         }
     }
-}
     //modify account
-    private static void userSettings() {
+    public static void userSettings() {
         if (currentUser == null) {
         System.out.println("Error: No user logged in.");
         return;
@@ -171,15 +185,18 @@ public class LoginSystem {
             }
             case 2 -> {
                 System.out.print("Enter new password: ");
-                String newPass = sc.nextLine();
+                String newPass = sc.nextLine().trim();
                 if (newPass.isEmpty()) {
                     System.out.println("Password cannot be empty!");
                     return;
                 }
-                if (userManager.editUser(email, null, newPass))
+                if (userManager.editUser(email, null, newPass)) {
+                    // Refresh the currentUser reference so session state matches stored data
+                    currentUser = userManager.getUserByEmail(email);
                     System.out.println("Password updated!");
-                else
+                } else {
                     System.out.println("User not found.");
+                }
             }
             case 3 -> {
                 System.out.print("Are you sure you want to delete your account? (y/n): ");
