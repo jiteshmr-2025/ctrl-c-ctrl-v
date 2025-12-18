@@ -1,13 +1,13 @@
 package summary;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
+import utils.MongoDBConnection;
 
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class SmartJournal {
 
@@ -22,9 +22,8 @@ public class SmartJournal {
         Map<String, Integer> weatherCounts = new HashMap<>();
         int totalEntries = 0;
 
-        // B. Define "Today" (In your real app, use LocalDate.now())
-        // For this assignment mock data, we force "Today" to be 2025-10-11
-        LocalDate today = LocalDate.parse("2025-10-11"); 
+        // B. Define "Today"
+        LocalDate today = LocalDate.now();
 
         // C. Loop through the past 7 days (6 days ago -> Today)
         for (int i = 6; i >= 0; i--) {
@@ -58,24 +57,29 @@ public class SmartJournal {
         System.out.println("==========================================\n");
     }
 
-    // 2. Helper Method: Read File & Find Entry
+    // 2. Helper Method: Fetch a journal entry for a date from MongoDB
     public static String[] getEntryForDate(String email, String date) {
-        File file = new File("JournalData.txt");
-        if (!file.exists()) return null;
+        MongoCollection<Document> coll = MongoDBConnection.getDatabase().getCollection("journals");
+        Document doc = coll.find(Filters.and(
+                Filters.eq("email", email),
+                Filters.eq("date", date)
+        )).first();
 
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split("\\|"); 
-                // Check if User AND Date match
-                if (parts.length >= 5 && parts[0].equals(date) && parts[1].equals(email)) {
-                    return parts;
-                }
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+        if (doc == null) return null;
+
+        String foundDate = doc.getString("date");
+        String foundEmail = doc.getString("email");
+        String title = doc.getString("title");
+        String weather = doc.getString("weather");
+        String mood = doc.getString("mood");
+
+        // Provide robust defaults if fields are missing
+        if (title == null) title = "";
+        if (weather == null || weather.isBlank()) weather = "Unknown";
+        if (mood == null || mood.isBlank()) mood = "Unknown";
+
+        // Keep the same positions used by existing code: [0]=date, [1]=email, [2]=title, [3]=weather, [4]=mood
+        return new String[] { foundDate, foundEmail, title, weather, mood };
     }
 
     // 3. Helper Method: Draw the "Text Pie Chart"
@@ -97,9 +101,7 @@ public class SmartJournal {
     
     // Main for testing
     public static void main(String[] args) {
-        // Test with the user from our mock file
+        // Example: run summary for current user email (replace with an actual email in your DB)
         displayWeeklySummary("s100201@student.fop");
-
-        
     }
 }
