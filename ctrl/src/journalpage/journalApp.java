@@ -11,72 +11,57 @@ import org.bson.Document;
 import registration.LoginSystem;
 import utils.MongoDBConnection;
 import mood.MoodAnalyzer;
+import summary.SmartJournal;
+import weather.API_Get; // IMPORT THIS
 
 public class journalApp {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    // Connect to the "journals" collection in MongoDB
     private static MongoCollection<Document> getJournalCollection() {
         return MongoDBConnection.getDatabase().getCollection("journals");
     }
 
     public static boolean runJournalApp() {
-        // Safety Check: Ensure a user is logged in before accessing journals
+        // (Keep this method exactly as it is)
         if (LoginSystem.getCurrentUser() == null) {
             System.out.println("Error: No user logged in.");
             return false;
         }
-
         while (true) {
             System.out.println("\n=== Journal Dates ===");
-
             List<LocalDate> dates = getJournalDates();
             int index = 1;
-
             for (LocalDate date : dates) {
-                if (date.equals(LocalDate.now()))
-                    System.out.println(index + ". " + date + " (Today)");
-                else
-                    System.out.println(index + ". " + date);
+                if (date.equals(LocalDate.now())) System.out.println(index + ". " + date + " (Today)");
+                else System.out.println(index + ". " + date);
                 index++;
             }
-
             System.out.println(index + ". View/Create journal for a custom date");
-            System.out.println((index + 1) + ". Back to Dashboard");
+            System.out.println((index + 1) + ". Weekly Summary");
+            System.out.println((index + 2) + ". Back to Dashboard");
             System.out.print("\nSelect an option: ");
-            
             int choice = getIntInput();
 
-            if (choice == index + 1) {
-                return false; // Return to Dashboard
-            }
-
+            if (choice == index + 2) return false;
             LocalDate selectedDate;
-            if (choice == index) {
-                selectedDate = getCustomDate();
-            } else if (choice > 0 && choice < index) {
-                selectedDate = dates.get(choice - 1);
-            } else {
-                System.out.println("Invalid choice.");
+            if (choice == index) selectedDate = getCustomDate();
+            else if (choice == index + 1) {
+                SmartJournal.displayWeeklySummary(LoginSystem.getCurrentUser().getEmail());
                 continue;
-            }
-
+            } else if (choice > 0 && choice < index) selectedDate = dates.get(choice - 1);
+            else { System.out.println("Invalid choice."); continue; }
             handleDateSelection(selectedDate);
         }
     }
 
     public static void handleDateSelection(LocalDate date) {
-        // Step 1: Check Database for an entry
         String entry = readJournal(date);
-
         if (entry == null) {
             System.out.println("No journal entry found for " + date);
             System.out.println("Would you like to create one? (y/n)");
-            if (scanner.nextLine().equalsIgnoreCase("y")) {
-                createJournal(date);
-            }
+            if (scanner.nextLine().equalsIgnoreCase("y")) createJournal(date);
         } else {
             System.out.println("Journal found for " + date + ".");
             System.out.println("1. View Journal");
@@ -84,36 +69,102 @@ public class journalApp {
             System.out.println("3. Back");
             System.out.print("> ");
             int option = getIntInput();
-
             if (option == 1) viewJournal(date);
             else if (option == 2) editJournal(date);
         }
     }
 
+    // --- UPDATED CREATE METHOD ---
     public static void createJournal(LocalDate date) {
         System.out.println("Enter your journal entry for " + date + ":");
         String entry = scanner.nextLine();
 
-        saveJournal(date, entry);
+        // 1. Fetch Weather
+        System.out.print("Fetching weather info... ");
+        String weather = API_Get.getCurrentWeather();
+        System.out.println("[" + weather + "]");
+
+        // 2. Analyze Mood
+        System.out.print("Analyzing mood... ");
+        String fullMood = "Unknown";
+        String chartMood = "Unknown";
+        
+        try {
+            fullMood = MoodAnalyzer.analyzeMood(entry); // Returns "Positive (100%)"
+            System.out.println("[" + fullMood + "]");   // Display to user immediately
+            
+            // Clean mood for the database chart (remove the percentage)
+            if (fullMood.contains("(")) {
+                chartMood = fullMood.substring(0, fullMood.indexOf("(")).trim();
+            } else {
+                chartMood = fullMood;
+            }
+        } catch (Exception e) {
+            System.out.println("Mood analysis failed.");
+        }
+
+        // 3. Save ALL data (Entry + Weather + Mood)
+        saveJournal(date, entry, weather, chartMood);
         System.out.println("Journal saved to Database!");
-        analyzeMood(entry);
     }
 
+    // --- UPDATED EDIT METHOD ---
     public static void editJournal(LocalDate date) {
         System.out.println("Enter new text for " + date + ":");
         String newEntry = scanner.nextLine();
 
-        saveJournal(date, newEntry);
-        System.out.println("Journal updated in Database!");
-        analyzeMood(newEntry);
+        // Re-analyze mood for new text
+        String fullMood = MoodAnalyzer.analyzeMood(newEntry);
+        String chartMood = fullMood;
+        if (fullMood.contains("(")) {
+            chartMood = fullMood.substring(0, fullMood.indexOf("(")).trim();
+        }
+        
+        // Preserve existing weather if possible, or fetch new
+        // For simplicity here, we will just fetch current weather or default
+        String weather = API_Get.getCurrentWeather();
+
+        saveJournal(date, newEntry, weather, chartMood);
+        System.out.println("Journal updated! New Mood: " + fullMood);
+    }
+
+    // --- UPDATED SAVE METHOD ---
+    public static void saveJournal(LocalDate date, String entry, String weather, String mood) {
+        String email = LoginSystem.getCurrentUser().getEmail();
+        String dateStr = date.toString();
+
+        Document query = new Document("email", email).append("date", dateStr);
+        
+        // Include weather and mood in the document
+        Document doc = new Document("email", email)
+                .append("date", dateStr)
+                .append("entry", entry)
+                .append("weather", weather)
+                .append("mood", mood);
+
+        if (getJournalCollection().find(query).first() != null) {
+            // Update existing
+            getJournalCollection().updateOne(query, Updates.combine(
+                Updates.set("entry", entry),
+                Updates.set("weather", weather),
+                Updates.set("mood", mood)
+            ));
+        } else {
+            // Insert new
+            getJournalCollection().insertOne(doc);
+        }
     }
 
     public static void viewJournal(LocalDate date) {
+        // We can just read the text, or read the full document if we want to show saved weather
         String entry = readJournal(date);
         if (entry != null) {
             System.out.println("\n=== Entry for " + date + " ===");
             System.out.println(entry);
-            analyzeMood(entry);
+            
+            // Optional: Re-analyze or fetch from DB. 
+            // Since we just want to view, re-analyzing is fine for display
+            analyzeMood(entry); 
         } else {
             System.out.println("No entry found.");
         }
@@ -121,49 +172,19 @@ public class journalApp {
         scanner.nextLine();
     }
 
-    // --- MongoDB Operations ---
-
-    public static void saveJournal(LocalDate date, String entry) {
-        String email = LoginSystem.getCurrentUser().getEmail();
-        String dateStr = date.toString();
-
-        // Query to find if this user already has a journal for this date
-        Document query = new Document("email", email).append("date", dateStr);
-        
-        // The data we want to save
-        Document doc = new Document("email", email)
-                .append("date", dateStr)
-                .append("entry", entry);
-
-        // Check if it exists
-        if (getJournalCollection().find(query).first() != null) {
-            // Update existing
-            getJournalCollection().updateOne(query, Updates.set("entry", entry));
-        } else {
-            // Insert new
-            getJournalCollection().insertOne(doc);
-        }
-    }
-
     public static String readJournal(LocalDate date) {
         String email = LoginSystem.getCurrentUser().getEmail();
         String dateStr = date.toString();
-
-        // Search for: Email + Date
         Document query = new Document("email", email).append("date", dateStr);
         Document doc = getJournalCollection().find(query).first();
-
         if (doc != null) {
             return doc.getString("entry");
         }
-        return null; // Not found
+        return null;
     }
-
-    // --- Helper Methods ---
 
     public static void analyzeMood(String text) {
         try {
-            // Assumes MoodAnalyzer.analyzeMood returns a String
             System.out.println("Detected mood: " + MoodAnalyzer.analyzeMood(text));
         } catch (Exception e) {
             System.out.println("Mood analysis skipped.");
@@ -172,7 +193,6 @@ public class journalApp {
 
     public static List<LocalDate> getJournalDates() {
         List<LocalDate> dates = new ArrayList<>();
-        // Show today + past 3 days
         for (int i = 0; i < 4; i++) {
             dates.add(LocalDate.now().minusDays(i));
         }
