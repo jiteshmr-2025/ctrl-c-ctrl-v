@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+  This StackPane is the root container.
+  It allows us to layer elements on top of each other.
+-->
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@welcome.css"
+           fx:controller="landingpage.LandingPageController">
+    <children>
+
+        <!--
+          LAYER 1: The Background Image
+          NEW: Swapped for a high-res image.
+          REMOVED: fitHeight and fitWidth are now handled in the controller
+          to bind to the fullscreen window size.
+        -->
+        <ImageView fx:id="backgroundImage" pickOnBounds="true" preserveRatio="false">
+            <image>
+                <!-- NEW: High-definition serene background -->
+                <Image url="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?fit=crop&amp;w=1920&amp;q=80" />
+            </image>
+        </ImageView>
+
+        <!--
+          LAYER 2: The Readability Overlay
+          This will also be resized by the controller.
+        -->
+        <Pane fx:id="backgroundOverlay" opacity="0.4" prefHeight="200.0" prefWidth="200.0"
+              style="-fx-background-color: black;" />
+
+        <!--
+          LAYER 3: The Welcome Content
+          This VBox will remain centered by the StackPane.
+        -->
+        <VBox alignment="CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0" spacing="8.0"
+              StackPane.alignment="CENTER">
+            <children>
+                <Label fx:id="dateTimeLabel" styleClass="date-label" text="TUESDAY, NOVEMBER 18" />
+                <Label fx:id="welcomeMessageLabel" styleClass="welcome-title" text="Welcome back." />
+                <Label styleClass="welcome-subtitle" text="What's on your mind today?" />
+            </children>
+            <StackPane.margin>
+                <Insets bottom="100.0" />
+            </StackPane.margin>
+        </VBox>
+
+        <!--
+          LAYER 4: The "Call to Action" Button
+          This will remain in the bottom-right.
+        -->
+        <Button fx:id="newEntryButton" mnemonicParsing="false" onAction="#handleNewEntry" styleClass="fab-button"
+                text="+" StackPane.alignment="BOTTOM_RIGHT">
+            <StackPane.margin>
+                <Insets bottom="30.0" right="30.0" />
+            </StackPane.margin>
+        </Button>
+
+    </children>
+</StackPane>

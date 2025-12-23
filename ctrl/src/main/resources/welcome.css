@@ -1,0 +1,98 @@
+/*
+ * NEW: Swapped 'Inter' for 'Montserrat'.
+ * Montserrat is a very clean, modern, and friendly Google Font.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
+
+.root {
+    /* NEW: Use the 'Montserrat' font. */
+    -fx-font-family: 'Montserrat', 'Segoe UI', sans-serif;
+}
+
+/*
+ * Style for the top date label.
+ * NEW: Increased size for better fullscreen visibility.
+ */
+.date-label {
+    -fx-font-size: 16px; /* Was 13px */
+    -fx-font-weight: 600;
+    -fx-text-fill: #e0e0e0;
+    -fx-letter-spacing: 1px;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
+}
+
+/*
+ * Style for the main "Welcome back." title.
+ * NEW: Significantly increased size for fullscreen.
+ */
+.welcome-title {
+    -fx-font-size: 64px; /* Was 42px */
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 2);
+}
+
+/*
+ * Style for the subtitle.
+ * NEW: Increased size for fullscreen.
+ */
+.welcome-subtitle {
+    -fx-font-size: 24px; /* Was 18px */
+    -fx-font-weight: 300; /* Use the light font weight */
+    -fx-text-fill: #f0f0f0;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
+}
+
+/*
+ * Style for the Floating Action Button (+).
+ * NEW: Made the button larger to scale with the screen.
+ */
+.fab-button {
+    /* 1. Size: NEW - larger button */
+    -fx-min-width: 70px;    /* Was 60px */
+    -fx-min-height: 70px;   /* Was 60px */
+    -fx-pref-width: 70px;   /* Was 60px */
+    -fx-pref-height: 70px;  /* Was 60px */
+
+    /* 2. Shape: Make it a perfect circle */
+    -fx-background-radius: 50em;
+
+    /* 3. Color: A calm, inviting blue */
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+
+    /* 4. Font: NEW - larger '+' sign */
+    -fx-font-size: 36px; /* Was 28px */
+    -fx-font-weight: 600; /* Adjusted weight for Montserrat */
+    -fx-alignment: center;
+
+    /* 5. Effect: A shadow to make it "float" */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 15, 0, 2, 4);
+    -fx-cursor: hand;
+}
+
+/*
+ * Hover effect for the button:
+ * It gets slightly darker and larger.
+ */
+.fab-button:hover {
+    -fx-background-color: #2980b9;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.logout-button {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 20;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: rgba(255, 0, 0, 0.6); /* Red tint on hover */
+}
