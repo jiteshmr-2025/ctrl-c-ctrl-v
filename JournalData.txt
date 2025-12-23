@@ -1,0 +1,8 @@
+2025-10-05|s100201@student.fop|Finally finished the assignment!|Rainy|NEGATIVE
+2025-10-06|s100201@student.fop|Missed the bus.|Sunny|POSITIVE
+2025-10-07|s100201@student.fop|Productive day coding.|Sunny|NEGATIVE
+2025-10-08|s100201@student.fop|Feeling a bit tired.|Thunderstorms|POSITIVE
+2025-10-09|s100201@student.fop|learned about APIs.|Cloudy|POSITIVE
+2025-10-10|s100201@student.fop|Forgot my umbrella.|Rainy|NEGATIVE
+2025-10-11|s100201@student.fop|Had a great lunch.|Sunny|POSITIVE
+2025-10-11|s100202@student.fop|I am another user|Sunny|POSITIVE

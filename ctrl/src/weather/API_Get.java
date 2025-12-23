@@ -9,6 +9,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class API_Get {
 
     /**
@@ -68,6 +71,30 @@ public class API_Get {
             return "Sunny";
         } else {
             return "Unknown";
+        }
+    }
+
+    // --- NEW: Static Helper to fetch current weather for the journal ---
+    public static String getCurrentWeather() {
+        API_Get api = new API_Get();
+        try {
+            // 1. URL for Kuala Lumpur
+            String getUrl = "https://api.data.gov.my/weather/forecast/?contains=WP%20Kuala%20Lumpur@location__location_name&sort=date&limit=1";
+            
+            // 2. Fetch Data
+            String response = api.get(getUrl);
+            
+            // 3. Parse JSON
+            JSONArray jsonArray = new JSONArray(response);
+            JSONObject firstItem = jsonArray.getJSONObject(0);
+            String summary = firstItem.getString("summary_forecast");
+            
+            // 4. Translate and Return (e.g., "Sunny")
+            return translateForecast(summary);
+            
+        } catch (Exception e) {
+            System.out.println("Weather fetch failed: " + e.getMessage());
+            return "Unknown"; // Fallback if internet fails
         }
     }
 
