@@ -3,6 +3,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import registration.UserManager;
 import registration.UserSession;
 import landingpage.LandingPageController; // Import this!
@@ -11,6 +12,10 @@ public class Ctrl extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        // 1. REMOVE WINDOW BORDERS (Minimize/Close buttons)
+        // This must be done before the stage is shown!
+        stage.initStyle(StageStyle.UNDECORATED);
         
         // 1. Try to restore previous session
         UserManager userManager = new UserManager();
@@ -30,16 +35,20 @@ public class Ctrl extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/registration/Login.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
-        // Add your CSS path here if needed
-        stage.setTitle("Smart Journal - Login");
+
         stage.setScene(scene);
+        
+        // 3. FORCE FULLSCREEN
+        stage.setFullScreen(true);
+        stage.setFullScreenExitHint(""); // Removes the "Press ESC to exit" text
+        
         stage.show();
     }
 
     private void openLandingPage(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/LandingPage.fxml")); // Correct path?
         Parent root = loader.load();
-        
+
         // Pass the restored username to the controller
         LandingPageController controller = loader.getController();
         String name = UserSession.getInstance().getCurrentUser().getDisplayName();
@@ -47,7 +56,7 @@ public class Ctrl extends Application {
 
         Scene scene = new Scene(root);
         // scene.getStylesheets().add(...) // Add CSS if needed
-        
+
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.show();

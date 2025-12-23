@@ -1,8 +1,8 @@
 registration\RegisterController.class
 journalpage\journalApp.class
+utils\WeatherBackgroundManager.class
 landingpage\LandingPageController.class
 registration\UserSession.class
-registration\LoginSystem.class
 registration\UserManager.class
 utils\EnvLoader.class
 weather\API_Get.class

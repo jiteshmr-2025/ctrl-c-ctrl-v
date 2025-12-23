@@ -6,57 +6,50 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.media.MediaView?>
 
-<StackPane fx:id="rootPane" prefHeight="550.0" prefWidth="400.0" styleClass="main-background" stylesheets="@login.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="registration.RegisterController">
+<StackPane fx:id="rootPane" stylesheets="@glass.css" 
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="registration.RegisterController">
    <children>
-      <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="300.0" spacing="15.0" styleClass="card-pane">
+      
+      <MediaView fx:id="weatherView" />
+      
+      <Pane styleClass="cinematic-vignette" mouseTransparent="true" />
+
+      <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="380.0" spacing="20.0" styleClass="glass-card">
          <children>
-            <Label text="Create Account" textFill="#333333">
-               <font>
-                  <Font name="System Bold" size="24.0" />
-               </font>
+            <VBox alignment="CENTER" spacing="5.0">
+               <children>
+                  <Label styleClass="title-label" text="Join the Journal" />
+                  <Label fx:id="weatherLabel" styleClass="subtitle-label" text="Current Weather: Checking..." />
+               </children>
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
-            </Label>
-            
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label styleClass="field-label" text="EMAIL" />
-                  <TextField fx:id="regEmailField" promptText="Must contain .com" styleClass="input-field" />
-               </children>
             </VBox>
-
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
+            
+            <VBox spacing="15.0">
                <children>
-                  <Label styleClass="field-label" text="DISPLAY NAME" />
-                  <TextField fx:id="regNameField" promptText="What should we call you?" styleClass="input-field" />
+                  <TextField fx:id="regNameField" promptText="Display Name" styleClass="glass-input" />
+                  <TextField fx:id="regEmailField" promptText="Email Address" styleClass="glass-input" />
+                  <PasswordField fx:id="regPasswordField" promptText="Create Password" styleClass="glass-input" />
                </children>
             </VBox>
             
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label styleClass="field-label" text="PASSWORD" />
-                  <PasswordField fx:id="regPasswordField" promptText="••••••••" styleClass="input-field" />
-               </children>
-            </VBox>
+            <Label fx:id="errorLabel" styleClass="error-label" text="Error" visible="false" />
             
-            <Label fx:id="errorLabel" text="Error message here" textFill="#e63946" visible="false" wrapText="true" />
+            <Button maxWidth="Infinity" onAction="#handleRegister" styleClass="glass-button" text="Create Account" />
             
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleRegister" styleClass="primary-button" text="Register">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </Button>
-            
-            <Hyperlink onAction="#switchToLogin" text="Already have an account? Log In" textFill="#666666" />
+            <Hyperlink onAction="#switchToLogin" styleClass="glass-link" text="Already have an account? Log in." />
          </children>
          <padding>
-            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
          </padding>
       </VBox>
+      
    </children>
 </StackPane>

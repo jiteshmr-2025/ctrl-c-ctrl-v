@@ -1,0 +1,140 @@
+/* --- GLOBAL FONT SETTINGS --- */
+.root {
+    /* Primary Font: Clean and Modern */
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* --- HEADINGS (Titles, Welcome Message) --- */
+.title-label {
+    /* Serif Font for Elegance. "Georgia" is a safe fallback if Playfair isn't installed */
+    -fx-font-family: "Playfair Display", "Georgia", "Times New Roman", serif;
+    -fx-font-weight: 700;
+    -fx-font-size: 32px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 4, 0.0, 0, 2);
+}
+
+/* --- SUBTITLES & METADATA (Date, Time, "Current Weather") --- */
+.subtitle-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 2, 0.0, 0, 1);
+}
+
+/* --- BUTTONS & INPUTS --- */
+.glass-button {
+    -fx-font-family: "Segoe UI Semibold", "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    /* ... keep your existing background/border styles ... */
+}
+
+.glass-input {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    /* ... keep your existing background/border styles ... */
+}
+
+/* --- ERROR MESSAGES --- */
+.error-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #ff6b6b; /* Soft red that pops on dark backgrounds */
+}
+
+/* --- 1. THE CINEMATIC VIGNETTE --- */
+.cinematic-vignette {
+    /* Very subtle darkness at the edges to frame the video */
+    -fx-background-color: radial-gradient(
+        focus-angle 0deg, 
+        focus-distance 0%, 
+        center 50% 50%, 
+        radius 100%, 
+        transparent 50%, 
+        rgba(0, 0, 0, 0.7) 100%
+    );
+}
+
+/* --- 2. THE FROSTED GLASS CARD --- */
+.glass-card {
+    /* Modern, sleek glass */
+    -fx-background-color: rgba(30, 30, 40, 0.65); /* Dark tint */
+    
+    /* Blur effect (simulated via color/shadow) */
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    
+    /* The "Frost" Border - subtle white gradient */
+    -fx-border-width: 1px;
+    -fx-border-color: linear-gradient(to bottom right, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+    
+    /* Shadow to separate it from the video */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 30, 0, 0, 10);
+}
+
+/* --- TYPOGRAPHY & INPUTS --- */
+.title-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.5), 0, 2, 0, 1);
+}
+
+.subtitle-label {
+    -fx-text-fill: #b0c0d0; /* Soft blue-grey */
+    -fx-font-size: 13px;
+    -fx-font-weight: lighter;
+}
+
+.glass-input {
+    -fx-background-color: rgba(0, 0, 0, 0.25);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #808080;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-padding: 12;
+    -fx-font-size: 14px;
+}
+
+.glass-input:focused {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-radius: 8;
+}
+
+.glass-button {
+    /* A subtle gradient button */
+    -fx-background-color: linear-gradient(to right, rgba(255,255,255,0.15), rgba(255,255,255,0.1));
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 25;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 25;
+    -fx-cursor: hand;
+    -fx-padding: 10;
+}
+
+.glass-button:hover {
+    -fx-background-color: rgba(255,255,255,0.25);
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.3), 15, 0, 0, 0);
+}
+
+.glass-link {
+    -fx-text-fill: #a0c0d0;
+    -fx-border-width: 0;
+    -fx-underline: false;
+}
+.glass-link:hover {
+    -fx-text-fill: white;
+}
+
+.error-label {
+    -fx-text-fill: #ff6b6b;
+    -fx-font-size: 12px;
+}
+

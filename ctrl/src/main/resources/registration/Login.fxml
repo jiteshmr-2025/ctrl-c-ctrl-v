@@ -6,50 +6,49 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.media.MediaView?>
 
-<StackPane fx:id="rootPane" prefHeight="500.0" prefWidth="400.0" styleClass="main-background" stylesheets="@login.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="registration.LoginController">
+<StackPane fx:id="rootPane" stylesheets="@glass.css" 
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="registration.LoginController">
    <children>
-      <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="350.0" prefWidth="300.0" spacing="15.0" styleClass="card-pane">
+      
+      <MediaView fx:id="weatherView" />
+      
+      <Pane styleClass="cinematic-vignette" mouseTransparent="true" />
+
+      <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="380.0" spacing="20.0" styleClass="glass-card">
          <children>
-            <Label text="Journal Login" textFill="#333333">
-               <font>
-                  <Font name="System Bold" size="24.0" />
-               </font>
+            <VBox alignment="CENTER" spacing="5.0">
+               <children>
+                  <Label styleClass="title-label" text="Welcome Back" />
+                  <Label fx:id="weatherLabel" styleClass="subtitle-label" text="Current Weather: Checking..." />
+               </children>
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
-            </Label>
+            </VBox>
             
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
+            <VBox spacing="15.0">
                <children>
-                  <Label styleClass="field-label" text="EMAIL" />
-                  <TextField fx:id="emailField" promptText="example@email.com" styleClass="input-field" />
+                  <TextField fx:id="emailField" promptText="Email" styleClass="glass-input" />
+                  <PasswordField fx:id="passwordField" promptText="Password" styleClass="glass-input" />
                </children>
             </VBox>
             
-            <VBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                  <Label styleClass="field-label" text="PASSWORD" />
-                  <PasswordField fx:id="passwordField" promptText="••••••••" styleClass="input-field" />
-               </children>
-            </VBox>
+            <Label fx:id="errorLabel" styleClass="error-label" text="Invalid credentials" visible="false" />
             
-            <Label fx:id="errorLabel" text="Invalid credentials" textFill="#e63946" visible="false" />
+            <Button fx:id="loginButton" maxWidth="Infinity" onAction="#handleLogin" styleClass="glass-button" text="Enter Journal" />
             
-            <Button fx:id="loginButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" styleClass="primary-button" text="Sign In">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </Button>
-            
-            <Hyperlink onAction="#switchToRegister" text="Don't have an account? Register" textFill="#666666" />
+            <Hyperlink onAction="#switchToRegister" styleClass="glass-link" text="New writer? Join us." />
          </children>
          <padding>
-            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
          </padding>
       </VBox>
+      
    </children>
 </StackPane>

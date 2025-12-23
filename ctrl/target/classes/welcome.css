@@ -1,86 +1,70 @@
-/*
- * NEW: Swapped 'Inter' for 'Montserrat'.
- * Montserrat is a very clean, modern, and friendly Google Font.
- */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
-
+/* --- GLOBAL --- */
 .root {
-    /* NEW: Use the 'Montserrat' font. */
-    -fx-font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: black; /* FALLBACK COLOR if video fails */
 }
 
-/*
- * Style for the top date label.
- * NEW: Increased size for better fullscreen visibility.
- */
-.date-label {
-    -fx-font-size: 16px; /* Was 13px */
-    -fx-font-weight: 600;
-    -fx-text-fill: #e0e0e0;
+/* --- GRADIENTS --- */
+/* A top gradient so the time is readable on bright skies */
+.top-gradient {
+    -fx-background-color: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+}
+
+/* The bottom gradient for the controls */
+.cinematic-gradient {
+    -fx-background-color: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
+}
+
+/* --- TYPOGRAPHY --- */
+
+/* Top Right: Date & Time - MADE BIGGER */
+.metadata-label {
+    -fx-font-family: "Segoe UI Semibold", sans-serif;
+    -fx-font-size: 16px; /* Increased from 14 */
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
     -fx-letter-spacing: 1px;
-    -fx-text-alignment: center;
-    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 3, 0, 0, 1);
 }
 
-/*
- * Style for the main "Welcome back." title.
- * NEW: Significantly increased size for fullscreen.
- */
-.welcome-title {
-    -fx-font-size: 64px; /* Was 42px */
-    -fx-font-weight: 700;
+/* Bottom Left: "Good Morning," */
+.greeting-intro {
+    -fx-font-family: "Segoe UI Light", sans-serif;
+    -fx-font-size: 32px; /* Increased */
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 4, 0, 0, 2);
+}
+
+/* Bottom Left: "ALEX" */
+.greeting-name {
+    -fx-font-family: "Playfair Display", "Georgia", serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 80px; /* Massive impact */
     -fx-text-fill: white;
-    -fx-text-alignment: center;
-    -fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.5), 10, 0.0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 3);
+    -fx-padding: -15 0 0 0; /* Pull it closer to the line above */
 }
 
-/*
- * Style for the subtitle.
- * NEW: Increased size for fullscreen.
- */
-.welcome-subtitle {
-    -fx-font-size: 24px; /* Was 18px */
-    -fx-font-weight: 300; /* Use the light font weight */
-    -fx-text-fill: #f0f0f0;
-    -fx-text-alignment: center;
-    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.7), 3, 0.0, 0, 1);
-}
-
-/*
- * Style for the Floating Action Button (+).
- * NEW: Made the button larger to scale with the screen.
- */
-.fab-button {
-    /* 1. Size: NEW - larger button */
-    -fx-min-width: 70px;    /* Was 60px */
-    -fx-min-height: 70px;   /* Was 60px */
-    -fx-pref-width: 70px;   /* Was 60px */
-    -fx-pref-height: 70px;  /* Was 60px */
-
-    /* 2. Shape: Make it a perfect circle */
-    -fx-background-radius: 50em;
-
-    /* 3. Color: A calm, inviting blue */
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
-
-    /* 4. Font: NEW - larger '+' sign */
-    -fx-font-size: 36px; /* Was 28px */
-    -fx-font-weight: 600; /* Adjusted weight for Montserrat */
-    -fx-alignment: center;
-
-    /* 5. Effect: A shadow to make it "float" */
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 15, 0, 2, 4);
+/* --- BUTTONS --- */
+.action-button {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-text-fill: #1a1a1a;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 15px;
+    -fx-padding: 12 35 12 35;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);
 }
 
-/*
- * Hover effect for the button:
- * It gets slightly darker and larger.
- */
-.fab-button:hover {
-    -fx-background-color: #2980b9;
+.action-button:hover {
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
 
+.text-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.4) transparent; /* Subtle underline */
+}
