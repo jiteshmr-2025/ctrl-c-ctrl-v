@@ -1,28 +1,26 @@
 package registration;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Filters.eq;
-import org.bson.Document;
+import java.io.*;
 import java.security.*;
-import utils.MongoDBConnection;
+import java.util.*;
 
 public class UserManager {
-    private final MongoCollection<Document> userCollection;
+    private final String filePath = "ctrl/src/registration/UserData.txt";
+    private final ArrayList<User> users = new ArrayList<>();
 
     public UserManager() {
-        MongoDatabase db = MongoDBConnection.getDatabase();
-        this.userCollection = db.getCollection("users");
+        loadUsers();
     }
 
-    // --- Keep your existing helper methods ---
     private String hashPassword(String password, String salt) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             String combined = password + salt;
             byte[] hashedBytes = md.digest(combined.getBytes());
             StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) { sb.append(String.format("%02x", b)); }
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error hashing password: " + e.getMessage());
@@ -34,117 +32,133 @@ public class UserManager {
         byte[] saltBytes = new byte[8];
         random.nextBytes(saltBytes);
         StringBuilder sb = new StringBuilder();
-        for (byte b : saltBytes) { sb.append(String.format("%02x", b)); }
+        for (byte b : saltBytes) {
+            sb.append(String.format("%02x", b));
+        }
         return sb.toString();
     }
-    // ------------------------------------------
+
+    private void loadUsers() {
+        File file = new File(filePath);
+        try {
+            if (!file.exists()) {
+                File parent = file.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+                file.createNewFile();
+            }
+
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String email, displayName, password;
+                while ((email = br.readLine()) != null) {
+                    displayName = br.readLine();
+                    password = br.readLine();
+                    String salt = br.readLine();
+                    users.add(new User(email, displayName, password, salt));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading users: " + e.getMessage());
+        }
+    }
+
+    private void saveAllUsers() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            for (int i = 0; i < users.size(); i++) {
+                User u = users.get(i);
+                bw.write(u.getEmail());
+                bw.newLine();
+                bw.write(u.getDisplayName());
+                bw.newLine();
+                bw.write(u.getPassword());
+                bw.newLine();
+                bw.write(u.getSalt());
+
+                if (i < users.size() - 1) {
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving users: " + e.getMessage());
+        }
+    }
 
     public boolean emailExists(String email) {
-        return userCollection.find(eq("email", email)).first() != null;
+        for (User u : users) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean register(String email, String displayName, String password) {
         if (emailExists(email)) return false;
-
         String salt = generateSalt();
         String hashed = hashPassword(password, salt);
-
-        Document newUser = new Document("email", email)
-                .append("displayName", displayName)
-                .append("password", hashed)
-                .append("salt", salt);
-
-        try {
-            userCollection.insertOne(newUser);
-            return true;
-        } catch (Exception e) {
-            System.out.println("Registration Error: " + e.getMessage());
-            return false;
-        }
+        users.add(new User(email, displayName, hashed, salt));
+        saveAllUsers();
+        return true;
     }
 
     public User login(String email, String password) {
-        Document doc = userCollection.find(eq("email", email)).first();
-        
-        if (doc != null) {
-            String storedSalt = doc.getString("salt");
-            String storedHash = doc.getString("password");
-            
-            if (hashPassword(password, storedSalt).equals(storedHash)) {
-                return new User(
-                    doc.getString("email"),
-                    doc.getString("displayName"),
-                    storedHash,
-                    storedSalt
-                );
+        for (User u : users) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                String hashedInput = hashPassword(password, u.getSalt());
+                if (u.getPassword().equals(hashedInput)) {
+                    return u;
+                }
             }
         }
         return null;
     }
 
-    public User getUserByEmail(String email) {
-        Document doc = userCollection.find(eq("email", email)).first();
-        if (doc != null) {
-             return new User(doc.getString("email"), doc.getString("displayName"), doc.getString("password"), doc.getString("salt"));
-        }
-        return null;
-    }
-    // Inside UserManager class...
-
     public boolean editUser(String email, String newDisplayName, String newPassword) {
-        // Find the user first
-        Document user = userCollection.find(eq("email", email)).first();
-        if (user == null) return false;
+        for (int i = 0; i < users.size(); i++) {
+            User u = users.get(i);
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                String updatedName = (newDisplayName != null && !newDisplayName.isEmpty())
+                        ? newDisplayName
+                        : u.getDisplayName();
 
-        // Prepare updates
-        Document updates = new Document();
-        if (newDisplayName != null && !newDisplayName.isEmpty()) {
-            updates.append("displayName", newDisplayName);
-        }
-        if (newPassword != null && !newPassword.isEmpty()) {
-            String newSalt = generateSalt(); // You need to regenerate salt if password changes
-            String newHash = hashPassword(newPassword, newSalt);
-            updates.append("password", newHash).append("salt", newSalt);
-        }
+                String updatedPass = u.getPassword();
+                String updatedSalt = u.getSalt();
 
-        // Apply updates if there are any
-        if (!updates.isEmpty()) {
-            userCollection.updateOne(eq("email", email), new Document("$set", updates));
-            return true;
+                if (newPassword != null && !newPassword.isEmpty()) {
+                    updatedSalt = generateSalt();
+                    updatedPass = hashPassword(newPassword, updatedSalt);
+                } else {
+                    updatedPass = u.getPassword();
+                }
+
+                users.set(i, new User(email, updatedName, updatedPass, updatedSalt));
+                saveAllUsers();
+                return true;
+            }
         }
         return false;
     }
 
     public boolean deleteUser(String email) {
-        // Delete the user document
-        return userCollection.deleteOne(eq("email", email)).getDeletedCount() > 0;
-    }
-
-    // ... existing code ...
-
-    // 1. Save a "Remember Me" token for a user
-    public void setRememberToken(String email, String token) {
-        // Update the user's document with a new "rememberToken" field
-        userCollection.updateOne(eq("email", email), new Document("$set", new Document("rememberToken", token)));
-    }
-
-    // 2. Find a user by their "Remember Me" token (for Auto-Login)
-    public User loginByToken(String token) {
-        Document doc = userCollection.find(eq("rememberToken", token)).first();
-        if (doc != null) {
-            // Token matches! Return the user.
-            return new User(
-                doc.getString("email"), 
-                doc.getString("displayName"), 
-                doc.getString("password"), 
-                doc.getString("salt")
-            );
+        Iterator<User> iterator = users.iterator();
+        while (iterator.hasNext()) {
+            User u = iterator.next();
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                iterator.remove();
+                saveAllUsers();
+                return true;
+            }
         }
-        return null; // Invalid token
+        return false;
     }
 
-    // 3. Remove the token (for Logout)
-    public void removeRememberToken(String email) {
-        userCollection.updateOne(eq("email", email), new Document("$unset", new Document("rememberToken", "")));
+    public User getUserByEmail(String email) {
+        for (User u : users) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                return u;
+            }
+        }
+        return null;
     }
 }

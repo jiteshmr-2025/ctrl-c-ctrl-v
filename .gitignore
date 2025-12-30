@@ -1,8 +1,10 @@
 /ctrl/nbproject/private/
 /ctrl/build/
+/ctrl/dist/
 
 # Environment variables
 .env
 ctrl/src/registration/UserData.txt
 remember.token
+session.token
 ctrl/src/journalpage/journals/2025-11-28.txt

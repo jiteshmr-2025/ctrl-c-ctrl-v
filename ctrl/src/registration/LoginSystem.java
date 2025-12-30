@@ -2,15 +2,14 @@ package registration;
 
 import java.io.*;
 import java.util.Scanner;
-import java.util.UUID; // Used to generate unique tokens
 
 public class LoginSystem {
     static UserManager userManager = new UserManager();
     static Scanner sc = new Scanner(System.in);
     public static User currentUser = null;
     
-    // File where we store the "Remember Me" token locally
-    private static final String REMEMBER_FILE = "remember.token";
+    // File where we store the "Remember Me" session token locally
+    private static final String SESSION_FILE = "session.token";
 
     public static void start() {
         // --- AUTO-LOGIN CHECK ---
@@ -49,15 +48,15 @@ public class LoginSystem {
         }
     }
     
-    // --- NEW: Auto-Login Feature ---
+    // --- Auto-Login Feature using file-based session ---
     public static void tryAutoLogin() {
-        File file = new File(REMEMBER_FILE);
+        File file = new File(SESSION_FILE);
         if (file.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String token = br.readLine();
-                if (token != null && !token.isEmpty()) {
+                String email = br.readLine();
+                if (email != null && !email.isEmpty()) {
                     System.out.println("Checking for saved login...");
-                    User user = userManager.loginByToken(token);
+                    User user = userManager.getUserByEmail(email.trim());
                     
                     if (user != null) {
                         currentUser = user;
@@ -83,11 +82,11 @@ public class LoginSystem {
             currentUser = user;
             System.out.println("Login successful! Welcome, " + user.getDisplayName());
             
-            // --- NEW: Ask to Remember User ---
+            // --- Ask to Remember User ---
             System.out.print("Remember me on this device? (y/n): ");
             String ans = sc.nextLine();
             if (ans.equalsIgnoreCase("y")) {
-                saveRememberToken(user.getEmail());
+                saveSession(user.getEmail());
             }
             
             welcome_user();
@@ -99,19 +98,13 @@ public class LoginSystem {
         }
     }
     
-    // --- NEW: Save Token Helper ---
-    public static void saveRememberToken(String email) {
-        String token = UUID.randomUUID().toString(); // Generate a random unique ID
-        
-        // 1. Save to Database
-        userManager.setRememberToken(email, token);
-        
-        // 2. Save to Local File
-        try (FileWriter fw = new FileWriter(REMEMBER_FILE)) {
-            fw.write(token);
+    // --- Save Session Helper (file-based) ---
+    public static void saveSession(String email) {
+        try (FileWriter fw = new FileWriter(SESSION_FILE)) {
+            fw.write(email);
             System.out.println(">> Device will remember you next time!");
         } catch (IOException e) {
-            System.out.println("Failed to save remember token.");
+            System.out.println("Failed to save session.");
         }
     }
 
@@ -123,7 +116,7 @@ public class LoginSystem {
             System.out.println("1. Modify Account");
             System.out.println("2. Open Journal");
             System.out.println("3. Logout (Forget Me)");
-            System.out.println("4. Exit Application (Remember Me)"); // <--- NEW OPTION
+            System.out.println("4. Exit Application (Remember Me)");
             System.out.print("Choose option: ");
             
             int opt = -1;
@@ -143,11 +136,11 @@ public class LoginSystem {
                     }
                     break;
                 case 3:
-                    // This DELETES the token (Standard security behavior)
+                    // This DELETES the session (Standard security behavior)
                     performLogout();
                     return;
                 case 4:
-                    // This KEEPS the token and closes the app
+                    // This KEEPS the session and closes the app
                     System.out.println("Exiting... See you soon!");
                     System.exit(0); 
                     break;
@@ -157,17 +150,12 @@ public class LoginSystem {
         }
     }
     
-    // --- NEW: Logout Helper ---
+    // --- Logout Helper (file-based) ---
     public static void performLogout() {
         System.out.println("Logged out successfully!");
         
-        // 1. Remove from Database
-        if (currentUser != null) {
-            userManager.removeRememberToken(currentUser.getEmail());
-        }
-        
-        // 2. Delete Local File
-        File file = new File(REMEMBER_FILE);
+        // Delete Local Session File
+        File file = new File(SESSION_FILE);
         if (file.exists()) {
             file.delete();
         }
@@ -175,17 +163,7 @@ public class LoginSystem {
         currentUser = null;
     }
 
-    // ... (Keep register, userSettings, welcome_user, etc. exactly as they were) ...
-    
     public static void register() {
-        // (Copy your existing register code here)
-        // ...
-        // To save space in this answer, I am omitting the register/settings code 
-        // because they don't change. Just make sure you keep them!
-        
-        // If you need me to paste the full register code again, let me know!
-        
-        // --- PASTE YOUR EXISTING REGISTER METHOD HERE ---
         System.out.print("Enter Email: ");
         String email = sc.nextLine().trim();
         if (email.isEmpty() || !email.contains(".com")) {
@@ -207,9 +185,6 @@ public class LoginSystem {
     }
     
     public static void userSettings() {
-       // (Copy your existing userSettings code here)
-       // ...
-       // --- PASTE YOUR EXISTING USERSETTINGS METHOD HERE ---
         if (currentUser == null) return;
         String email = currentUser.getEmail();
         System.out.println("1. Edit Display Name");
@@ -240,7 +215,7 @@ public class LoginSystem {
                 if (sc.nextLine().equalsIgnoreCase("y")) {
                     if (userManager.deleteUser(email)) {
                         System.out.println("Account deleted!");
-                        performLogout(); // Use new logout method
+                        performLogout();
                     }
                 }
             }
