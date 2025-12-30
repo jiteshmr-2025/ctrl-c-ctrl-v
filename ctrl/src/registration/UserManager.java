@@ -55,7 +55,10 @@ public class UserManager {
                     displayName = br.readLine();
                     password = br.readLine();
                     String salt = br.readLine();
-                    users.add(new User(email, displayName, password, salt));
+                    // Validate all fields are present before creating User
+                    if (displayName != null && password != null && salt != null) {
+                        users.add(new User(email, displayName, password, salt));
+                    }
                 }
             }
         } catch (IOException e) {
@@ -128,8 +131,6 @@ public class UserManager {
                 if (newPassword != null && !newPassword.isEmpty()) {
                     updatedSalt = generateSalt();
                     updatedPass = hashPassword(newPassword, updatedSalt);
-                } else {
-                    updatedPass = u.getPassword();
                 }
 
                 users.set(i, new User(email, updatedName, updatedPass, updatedSalt));
