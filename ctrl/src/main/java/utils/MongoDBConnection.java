@@ -13,8 +13,9 @@ public class MongoDBConnection {
     private static final String DATABASE_NAME = "SmartJournalDB";
     private static final String ENV_FILE = ".env";
     
-    private static MongoClient mongoClient = null;
-    private static MongoDatabase database = null;
+    private static volatile MongoClient mongoClient = null;
+    private static volatile MongoDatabase database = null;
+    private static final Object lock = new Object();
 
     /**
      * Gets the MongoDB connection string from environment variables.
@@ -43,19 +44,25 @@ public class MongoDBConnection {
     /**
      * Gets the MongoDB database instance.
      * Creates a new connection if one doesn't exist.
+     * Thread-safe implementation using double-checked locking.
      * 
      * @return MongoDatabase instance for journal operations
      */
     public static MongoDatabase getDatabase() {
         if (database == null) {
-            try {
-                String connectionString = getConnectionString();
-                mongoClient = MongoClients.create(connectionString);
-                database = mongoClient.getDatabase(DATABASE_NAME);
-                System.out.println("Successfully connected to MongoDB.");
-            } catch (Exception e) {
-                System.err.println("Error connecting to MongoDB: " + e.getMessage());
-                throw new RuntimeException(e);
+            synchronized (lock) {
+                if (database == null) {
+                    try {
+                        String connectionString = getConnectionString();
+                        mongoClient = MongoClients.create(connectionString);
+                        database = mongoClient.getDatabase(DATABASE_NAME);
+                        System.out.println("Successfully connected to MongoDB.");
+                    } catch (Exception e) {
+                        System.err.println("Error connecting to MongoDB: " + e.getMessage());
+                        System.err.println("Please check: 1) MONGODB_URI is set in .env file or environment, 2) Network connectivity, 3) MongoDB Atlas whitelist settings");
+                        throw new RuntimeException(e);
+                    }
+                }
             }
         }
         return database;
@@ -65,7 +72,7 @@ public class MongoDBConnection {
      * Closes the MongoDB connection.
      * Should be called when the application shuts down.
      */
-    public static void closeConnection() {
+    public static synchronized void closeConnection() {
         if (mongoClient != null) {
             mongoClient.close();
             mongoClient = null;

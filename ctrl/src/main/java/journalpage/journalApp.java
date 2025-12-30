@@ -5,7 +5,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Updates;
+import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
 import mood.MoodAnalyzer;
 import registration.UserSession;
@@ -34,6 +34,23 @@ public class journalApp {
         }
         // Fallback for standalone testing
         return "guest@local";
+    }
+
+    /**
+     * Extracts the mood category from the full mood result.
+     * Removes the percentage in parentheses (e.g., "Positive (100%)" -> "Positive").
+     * 
+     * @param fullMood the full mood result from the analyzer
+     * @return the cleaned mood category
+     */
+    private static String extractMoodCategory(String fullMood) {
+        if (fullMood == null) {
+            return "Unknown";
+        }
+        if (fullMood.contains("(")) {
+            return fullMood.substring(0, fullMood.indexOf("(")).trim();
+        }
+        return fullMood;
     }
 
     public static void main(String[] args) {
@@ -140,13 +157,7 @@ public class journalApp {
         try {
             fullMood = MoodAnalyzer.analyzeMood(entry);
             System.out.println("[" + fullMood + "]");
-            
-            // Clean mood for the database (remove the percentage)
-            if (fullMood.contains("(")) {
-                chartMood = fullMood.substring(0, fullMood.indexOf("(")).trim();
-            } else {
-                chartMood = fullMood;
-            }
+            chartMood = extractMoodCategory(fullMood);
         } catch (Exception e) {
             System.out.println("Mood analysis failed: " + e.getMessage());
         }
@@ -200,11 +211,7 @@ public class journalApp {
         String chartMood = "Unknown";
         try {
             fullMood = MoodAnalyzer.analyzeMood(newEntry);
-            if (fullMood.contains("(")) {
-                chartMood = fullMood.substring(0, fullMood.indexOf("(")).trim();
-            } else {
-                chartMood = fullMood;
-            }
+            chartMood = extractMoodCategory(fullMood);
         } catch (Exception e) {
             System.out.println("Mood analysis failed: " + e.getMessage());
         }
@@ -228,14 +235,15 @@ public class journalApp {
     }
 
     /**
-     * Saves a journal entry to MongoDB.
-     * Updates existing entry if one exists for the same user and date.
+     * Saves a journal entry to MongoDB using upsert.
+     * Creates a new entry or updates existing entry for the same user and date.
      */
     public static void saveJournal(LocalDate date, String entry, String weather, String mood) {
         String email = getCurrentUserEmail();
         String dateStr = date.toString();
 
-        Document query = new Document("email", email).append("date", dateStr);
+        // Create filter for the query
+        Document filter = new Document("email", email).append("date", dateStr);
         
         // Create document with all journal data
         Document doc = new Document("email", email)
@@ -244,17 +252,12 @@ public class journalApp {
                 .append("weather", weather)
                 .append("mood", mood);
 
-        if (getJournalCollection().find(query).first() != null) {
-            // Update existing entry
-            getJournalCollection().updateOne(query, Updates.combine(
-                Updates.set("entry", entry),
-                Updates.set("weather", weather),
-                Updates.set("mood", mood)
-            ));
-        } else {
-            // Insert new entry
-            getJournalCollection().insertOne(doc);
-        }
+        // Use replaceOne with upsert option to insert or update in a single operation
+        getJournalCollection().replaceOne(
+            filter, 
+            doc, 
+            new ReplaceOptions().upsert(true)
+        );
     }
 
     /**
