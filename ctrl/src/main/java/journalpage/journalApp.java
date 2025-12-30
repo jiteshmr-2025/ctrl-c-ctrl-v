@@ -4,18 +4,56 @@ import java.util.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.io.*;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.ReplaceOptions;
+import org.bson.Document;
 import mood.MoodAnalyzer;
+import registration.UserSession;
+import utils.MongoDBConnection;
+import utils.WeatherBackgroundManager;
 
 public class journalApp {
 
-    // Save journals in a `journals` folder inside the `ctrl/src/journalpage` package
-    public static final String JOURNAL_FOLDER = System.getProperty("user.dir") + File.separator + "ctrl" + File.separator + "src" + File.separator + "journalpage" + File.separator + "journals";
     public static final Scanner scanner = new Scanner(System.in);
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /**
+     * Gets the MongoDB collection for journals.
+     */
+    private static MongoCollection<Document> getJournalCollection() {
+        return MongoDBConnection.getDatabase().getCollection("journals");
+    }
+
+    /**
+     * Gets the current user's email from the session.
+     * Returns a default email if no user is logged in.
+     */
+    private static String getCurrentUserEmail() {
+        if (UserSession.getInstance().getCurrentUser() != null) {
+            return UserSession.getInstance().getCurrentUser().getEmail();
+        }
+        // Fallback for standalone testing
+        return "guest@local";
+    }
+
+    /**
+     * Extracts the mood category from the full mood result.
+     * Removes the percentage in parentheses (e.g., "Positive (100%)" -> "Positive").
+     * 
+     * @param fullMood the full mood result from the analyzer
+     * @return the cleaned mood category
+     */
+    private static String extractMoodCategory(String fullMood) {
+        if (fullMood == null) {
+            return "Unknown";
+        }
+        if (fullMood.contains("(")) {
+            return fullMood.substring(0, fullMood.indexOf("(")).trim();
+        }
+        return fullMood;
+    }
+
     public static void main(String[] args) {
-        new File(JOURNAL_FOLDER).mkdirs(); // Ensure Desktop/journal folder exists
         runJournalApp();
     }
 
@@ -76,10 +114,9 @@ public class journalApp {
     }
 
     public static void handleDateSelection(LocalDate date) {
-        String filePath = JOURNAL_FOLDER + "/" + date + ".txt";
-        File journalFile = new File(filePath);
+        String entry = readJournal(date);
 
-        if (!journalFile.exists()) {
+        if (entry == null) {
             System.out.println("No journal entry found for " + date);
             System.out.println("Would you like to create one? (y/n)");
             String choice = scanner.nextLine();
@@ -107,16 +144,27 @@ public class journalApp {
         System.out.print("> ");
         String entry = scanner.nextLine();
 
-        saveJournal(date, entry);
-        System.out.println("Journal saved successfully!");
+        // Fetch Weather
+        System.out.print("Fetching weather info... ");
+        String weather = WeatherBackgroundManager.getCurrentWeather();
+        System.out.println("[" + weather + "]");
 
-        // Analyze mood for the newly created journal
+        // Analyze Mood
+        System.out.print("Analyzing mood... ");
+        String fullMood = "Unknown";
+        String chartMood = "Unknown";
+        
         try {
-            String moodResult = MoodAnalyzer.analyzeMood(entry);
-            System.out.println("Detected mood: " + moodResult);
+            fullMood = MoodAnalyzer.analyzeMood(entry);
+            System.out.println("[" + fullMood + "]");
+            chartMood = extractMoodCategory(fullMood);
         } catch (Exception e) {
             System.out.println("Mood analysis failed: " + e.getMessage());
         }
+
+        // Save to MongoDB
+        saveJournal(date, entry, weather, chartMood);
+        System.out.println("Journal saved to Database!");
 
         System.out.println("Would you like to:");
         System.out.println("1. View Journal");
@@ -141,6 +189,7 @@ public class journalApp {
 
         System.out.println("\n=== Journal Entry for " + date + " ===");
         System.out.println(entry);
+        
         // Analyze mood for the viewed journal
         try {
             String moodResult = MoodAnalyzer.analyzeMood(entry);
@@ -157,15 +206,21 @@ public class journalApp {
         System.out.print("> ");
         String newEntry = scanner.nextLine();
 
-        saveJournal(date, newEntry);
-        System.out.println("Journal updated successfully!");
-        // Analyze mood for the updated journal
+        // Re-analyze mood for new text
+        String fullMood = "Unknown";
+        String chartMood = "Unknown";
         try {
-            String moodResult = MoodAnalyzer.analyzeMood(newEntry);
-            System.out.println("Detected mood: " + moodResult);
+            fullMood = MoodAnalyzer.analyzeMood(newEntry);
+            chartMood = extractMoodCategory(fullMood);
         } catch (Exception e) {
             System.out.println("Mood analysis failed: " + e.getMessage());
         }
+        
+        // Fetch current weather
+        String weather = WeatherBackgroundManager.getCurrentWeather();
+
+        saveJournal(date, newEntry, weather, chartMood);
+        System.out.println("Journal updated! New Mood: " + fullMood);
     }
 
     public static List<LocalDate> getJournalDates() {
@@ -179,28 +234,45 @@ public class journalApp {
         return dates;
     }
 
-    public static void saveJournal(LocalDate date, String entry) {
-        try (FileWriter writer = new FileWriter(JOURNAL_FOLDER + "/" + date + ".txt")) {
-            writer.write(entry);
-        } catch (IOException e) {
-            System.out.println("Error saving journal: " + e.getMessage());
-        }
+    /**
+     * Saves a journal entry to MongoDB using upsert.
+     * Creates a new entry or updates existing entry for the same user and date.
+     */
+    public static void saveJournal(LocalDate date, String entry, String weather, String mood) {
+        String email = getCurrentUserEmail();
+        String dateStr = date.toString();
+
+        // Create filter for the query
+        Document filter = new Document("email", email).append("date", dateStr);
+        
+        // Create document with all journal data
+        Document doc = new Document("email", email)
+                .append("date", dateStr)
+                .append("entry", entry)
+                .append("weather", weather)
+                .append("mood", mood);
+
+        // Use replaceOne with upsert option to insert or update in a single operation
+        getJournalCollection().replaceOne(
+            filter, 
+            doc, 
+            new ReplaceOptions().upsert(true)
+        );
     }
 
+    /**
+     * Reads a journal entry from MongoDB for the current user and given date.
+     * Returns null if no entry exists.
+     */
     public static String readJournal(LocalDate date) {
-        StringBuilder sb = new StringBuilder();
-        File file = new File(JOURNAL_FOLDER + "/" + date + ".txt");
-
-        if (!file.exists()) return null;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null)
-                sb.append(line).append("\n");
-        } catch (IOException e) {
-            System.out.println("Error reading journal: " + e.getMessage());
+        String email = getCurrentUserEmail();
+        String dateStr = date.toString();
+        Document query = new Document("email", email).append("date", dateStr);
+        Document doc = getJournalCollection().find(query).first();
+        if (doc != null) {
+            return doc.getString("entry");
         }
-        return sb.toString().trim();
+        return null;
     }
 
     public static int getIntInput() {

@@ -1,6 +1,11 @@
 /ctrl/nbproject/private/
 /ctrl/build/
+/ctrl/target/
 
-# Environment variables
+# Environment variables (but not the example file)
 .env
+!.env.example
 ctrl/src/registration/UserData.txt
+
+# Session token
+session.token
