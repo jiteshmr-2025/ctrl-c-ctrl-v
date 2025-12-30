@@ -1,7 +1,12 @@
 /ctrl/nbproject/private/
-/ctrl/build/
 /ctrl/target/
 
+
+# Environment variables file
+.env
+
+# top-level Maven output
+/target/
 
 # Session token
 session.token
