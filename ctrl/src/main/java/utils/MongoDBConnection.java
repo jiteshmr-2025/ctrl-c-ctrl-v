@@ -3,18 +3,42 @@ package utils;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import java.util.Map;
 
 /**
  * MongoDB connection utility for journal storage.
  * Provides a singleton connection to the SmartJournalDB database.
  */
 public class MongoDBConnection {
-    // Connection string for MongoDB Atlas
-    private static final String CONNECTION_STRING = "mongodb+srv://tankeat0613_db_user:f6VaAhnTNR5V9cf8@cluster0.e3ekunw.mongodb.net/";
     private static final String DATABASE_NAME = "SmartJournalDB";
+    private static final String ENV_FILE = ".env";
     
     private static MongoClient mongoClient = null;
     private static MongoDatabase database = null;
+
+    /**
+     * Gets the MongoDB connection string from environment variables.
+     * Looks for MONGODB_URI in .env file or system environment variables.
+     * 
+     * @return the MongoDB connection string
+     */
+    private static String getConnectionString() {
+        // First, try to load from .env file
+        Map<String, String> env = EnvLoader.loadEnv(ENV_FILE);
+        String connectionString = env.get("MONGODB_URI");
+        
+        // If not in .env, try system environment variable
+        if (connectionString == null || connectionString.isEmpty()) {
+            connectionString = System.getenv("MONGODB_URI");
+        }
+        
+        // Throw error if not configured
+        if (connectionString == null || connectionString.isEmpty()) {
+            throw new RuntimeException("MONGODB_URI not configured. Please set it in .env file or as environment variable.");
+        }
+        
+        return connectionString;
+    }
 
     /**
      * Gets the MongoDB database instance.
@@ -25,7 +49,8 @@ public class MongoDBConnection {
     public static MongoDatabase getDatabase() {
         if (database == null) {
             try {
-                mongoClient = MongoClients.create(CONNECTION_STRING);
+                String connectionString = getConnectionString();
+                mongoClient = MongoClients.create(connectionString);
                 database = mongoClient.getDatabase(DATABASE_NAME);
                 System.out.println("Successfully connected to MongoDB.");
             } catch (Exception e) {
