@@ -1,5 +1,6 @@
 /ctrl/nbproject/private/
 /ctrl/build/
+/ctrl/target/
 
 # Environment variables
 .env

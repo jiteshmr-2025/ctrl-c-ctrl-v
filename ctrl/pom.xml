@@ -54,6 +54,13 @@
             <version>1.1</version>
             <type>jar</type>
         </dependency>
+        
+        <!-- MongoDB Java Driver for Journal Storage -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.1.0</version>
+        </dependency>
     </dependencies>
 
     <!-- 4. Build Plugins -->
