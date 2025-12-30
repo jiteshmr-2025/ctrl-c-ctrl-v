@@ -21,10 +21,12 @@ public class MongoDBConnection {
             return envConnectionString;
         }
         
-        // Fallback to default (for backwards compatibility, but should use env vars)
-        System.err.println("WARNING: Using default MongoDB connection string. " +
-                          "Please set MONGODB_CONNECTION_STRING environment variable for security.");
-        return "mongodb+srv://tankeat0613_db_user:f6VaAhnTNR5V9cf8@cluster0.e3ekunw.mongodb.net/";
+        // No connection string found - throw error
+        throw new IllegalStateException(
+            "MongoDB connection string not found. " +
+            "Please set the MONGODB_CONNECTION_STRING environment variable. " +
+            "See .env.example for configuration details."
+        );
     }
 
     public static synchronized MongoDatabase getDatabase() {
