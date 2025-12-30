@@ -2,10 +2,6 @@
 /ctrl/build/
 /ctrl/target/
 
-# Environment variables (but not the example file)
-.env
-!.env.example
-ctrl/src/registration/UserData.txt
 
 # Session token
 session.token
