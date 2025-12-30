@@ -14,14 +14,14 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
-        <!-- From your file: Configures compiler for JDK 24 -->
-        <maven.compiler.release>24</maven.compiler.release>
+        <!-- Configures compiler for JDK 17 -->
+        <maven.compiler.release>17</maven.compiler.release>
         
-        <!-- From your file: Sets the main class -->
+        <!-- Sets the main class -->
         <exec.mainClass>Ctrl</exec.mainClass>
         
-        <!-- JavaFX Version (matched to your JDK 24) -->
-        <javafx.version>24</javafx.version>
+        <!-- JavaFX Version (matched to your JDK 17) -->
+        <javafx.version>17.0.12</javafx.version>
         
         <!-- Plugin Versions -->
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
