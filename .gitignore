@@ -1,6 +1,18 @@
 /ctrl/nbproject/private/
 /ctrl/build/
+/ctrl/target/
+/ctrl/dist/
 
 # Environment variables
 .env
 ctrl/src/registration/UserData.txt
+ctrl/ctrl/src/registration/UserData.txt
+remember.token
+ctrl/src/journalpage/journals/2025-11-28.txt
+
+# Maven
+ctrl/target/
+
+# Build artifacts
+*.class
+*.jar
