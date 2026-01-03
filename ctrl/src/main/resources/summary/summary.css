@@ -1,0 +1,65 @@
+/* --- GLOBAL --- */
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+/* --- HEADER SECTION --- */
+.header-section {
+    -fx-alignment: center;
+}
+
+.title-label {
+    -fx-font-family: "Segoe UI Semibold", sans-serif;
+    -fx-font-size: 36px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 2px;
+}
+
+.subtitle-label {
+    -fx-font-family: "Segoe UI Light", sans-serif;
+    -fx-font-size: 18px;
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+}
+
+/* --- CHART CONTAINER --- */
+.chart-container {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.chart-title {
+    -fx-font-family: "Segoe UI Semibold", sans-serif;
+    -fx-font-size: 20px;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-padding: 0 0 10 0;
+}
+
+.no-data-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-alignment: center;
+}
+
+/* --- BUTTONS --- */
+.action-button {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-text-fill: #1a1a1a;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 15px;
+    -fx-padding: 12 35 12 35;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);
+}
+
+.action-button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
