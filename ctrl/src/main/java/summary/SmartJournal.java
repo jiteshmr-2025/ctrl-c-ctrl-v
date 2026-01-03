@@ -17,42 +17,18 @@ public class SmartJournal {
         System.out.println("      WEEKLY SUMMARY (Past 7 Days)      ");
         System.out.println("==========================================");
 
-        // A. Setup Counters
-        Map<String, Integer> moodCounts = new HashMap<>();
-        Map<String, Integer> weatherCounts = new HashMap<>();
-        int totalEntries = 0;
+        // Get summary data
+        SummaryData summaryData = getWeeklySummaryData(currentUserEmail);
 
-        // B. Define "Today"
-        LocalDate today = LocalDate.now();
-
-        // C. Loop through the past 7 days (6 days ago -> Today)
-        for (int i = 6; i >= 0; i--) {
-            LocalDate targetDate = today.minusDays(i);
-            String dateString = targetDate.toString();
-
-            // D. Extract data for this specific date
-            String[] entry = getEntryForDate(currentUserEmail, dateString);
-
-            if (entry != null) {
-                totalEntries++;
-                String weather = entry[3]; // Weather is at index 3
-                String mood = entry[4];    // Mood is at index 4
-
-                // Add to counters
-                moodCounts.put(mood, moodCounts.getOrDefault(mood, 0) + 1);
-                weatherCounts.put(weather, weatherCounts.getOrDefault(weather, 0) + 1);
-            }
-        }
-
-        // E. Display the Charts
-        if (totalEntries == 0) {
+        // Display the Charts
+        if (summaryData.getTotalEntries() == 0) {
             System.out.println("No journal entries found for this week.");
         } else {
             System.out.println("\n[ MOOD CHART ]");
-            printTextChart(moodCounts, totalEntries);
+            printTextChart(summaryData.getMoodCounts(), summaryData.getTotalEntries());
 
             System.out.println("\n[ WEATHER CHART ]");
-            printTextChart(weatherCounts, totalEntries);
+            printTextChart(summaryData.getWeatherCounts(), summaryData.getTotalEntries());
         }
         System.out.println("==========================================\n");
     }
