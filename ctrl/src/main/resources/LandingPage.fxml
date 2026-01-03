@@ -48,6 +48,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="30.0">
                            <children>
                               <Button fx:id="newEntryButton" mnemonicParsing="false" onAction="#handleNewEntry" styleClass="action-button" text="+ New Entry" />
+                              <Button mnemonicParsing="false" onAction="#handleViewSummary" styleClass="action-button" text="View Summary" />
                               <Button mnemonicParsing="false" onAction="#handleLogout" styleClass="text-button" text="Log Out" />
                            </children>
                            <VBox.margin>
