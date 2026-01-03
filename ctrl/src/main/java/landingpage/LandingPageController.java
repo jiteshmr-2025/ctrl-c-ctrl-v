@@ -123,6 +123,21 @@ public class LandingPageController {
     }
 
     @FXML
+    protected void handleViewSummary() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/summary/Summary.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Weekly Summary");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+        }
+    }
+
+    @FXML
     private void handleLogout(ActionEvent event) {
         // 1. Clear Session
         UserSession.getInstance().logout();
