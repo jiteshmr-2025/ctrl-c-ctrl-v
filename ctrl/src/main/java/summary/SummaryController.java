@@ -7,7 +7,7 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import registration.UserSession;
-import summary.SmartJournal.SummaryData;
+import summary.SummaryPage.SummaryData;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class SummaryController {
         }
 
         // Fetch summary data
-        SummaryData summaryData = SmartJournal.getWeeklySummaryData(userEmail);
+        SummaryData summaryData = SummaryPage.getWeeklySummaryData(userEmail);
 
         if (summaryData.getTotalEntries() == 0) {
             // Show "no data" message

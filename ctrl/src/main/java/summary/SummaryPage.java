@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SmartJournal {
+public class SummaryPage {
 
     // 1. The Main Method to Show the Summary
     public static void displayWeeklySummary(String currentUserEmail) {
