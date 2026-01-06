@@ -20,35 +20,55 @@ public class SummaryController {
 
     @FXML
     public void initialize() {
-        loadSummaryData();
-    }
-
-    private void loadSummaryData() {
-        // Get current user email
-        String userEmail = "guest@local"; // default
-        if (UserSession.getInstance().getCurrentUser() != null) {
-            userEmail = UserSession.getInstance().getCurrentUser().getEmail();
-        }
-
-        // Fetch summary data
-        SummaryData summaryData = SummaryPage.getWeeklySummaryData(userEmail);
-
-        if (summaryData.getTotalEntries() == 0) {
-            // Show "no data" message
+        try {
+            loadSummaryData();
+        } catch (Exception e) {
+            System.err.println("Error loading summary data: " + e.getMessage());
+            e.printStackTrace();
+            // Show error message to user
+            noDataLabel.setText("Error loading summary: " + e.getMessage());
             noDataLabel.setVisible(true);
             moodChartContainer.setVisible(false);
             weatherChartContainer.setVisible(false);
-        } else {
-            // Hide "no data" message and show charts
-            noDataLabel.setVisible(false);
-            moodChartContainer.setVisible(true);
-            weatherChartContainer.setVisible(true);
+        }
+    }
 
-            // Populate mood chart
-            populateChart(moodChartContainer, summaryData.getMoodCounts(), summaryData.getTotalEntries());
+    private void loadSummaryData() {
+        try {
+            // Get current user email
+            String userEmail = "guest@local"; // default
+            if (UserSession.getInstance().getCurrentUser() != null) {
+                userEmail = UserSession.getInstance().getCurrentUser().getEmail();
+            }
 
-            // Populate weather chart
-            populateChart(weatherChartContainer, summaryData.getWeatherCounts(), summaryData.getTotalEntries());
+            System.out.println("Loading summary for user: " + userEmail);
+
+            // Fetch summary data
+            SummaryData summaryData = SummaryPage.getWeeklySummaryData(userEmail);
+
+            System.out.println("Summary data loaded. Total entries: " + summaryData.getTotalEntries());
+
+            if (summaryData.getTotalEntries() == 0) {
+                // Show "no data" message
+                noDataLabel.setVisible(true);
+                moodChartContainer.setVisible(false);
+                weatherChartContainer.setVisible(false);
+            } else {
+                // Hide "no data" message and show charts
+                noDataLabel.setVisible(false);
+                moodChartContainer.setVisible(true);
+                weatherChartContainer.setVisible(true);
+
+                // Populate mood chart
+                populateChart(moodChartContainer, summaryData.getMoodCounts(), summaryData.getTotalEntries());
+
+                // Populate weather chart
+                populateChart(weatherChartContainer, summaryData.getWeatherCounts(), summaryData.getTotalEntries());
+            }
+        } catch (Exception e) {
+            System.err.println("Error in loadSummaryData: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 
