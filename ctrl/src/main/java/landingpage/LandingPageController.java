@@ -113,27 +113,46 @@ public class LandingPageController {
     @FXML
     protected void handleNewEntry() {
         try {
+            System.out.println("New Entry button clicked");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/journalpage/JournalEditor.fxml"));
+            System.out.println("FXML loader created for JournalEditor");
             Parent root = loader.load();
+            System.out.println("JournalEditor FXML loaded successfully");
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Journal Editor");
             stage.setScene(new Scene(root));
+            System.out.println("Showing journal editor window");
             stage.show();
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) { 
+            System.err.println("Error loading journal editor: " + e.getMessage());
+            e.printStackTrace(); 
+        } catch (Exception e) {
+            System.err.println("Unexpected error opening journal editor: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
     protected void handleViewSummary() {
         try {
+            System.out.println("View Summary button clicked");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/summary/Summary.fxml"));
+            System.out.println("FXML loader created");
             Parent root = loader.load();
+            System.out.println("FXML loaded successfully");
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Weekly Summary");
             stage.setScene(new Scene(root));
+            System.out.println("Showing summary window");
             stage.show();
         } catch (IOException e) { 
+            System.err.println("Error loading summary window: " + e.getMessage());
             e.printStackTrace(); 
+        } catch (Exception e) {
+            System.err.println("Unexpected error opening summary: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
