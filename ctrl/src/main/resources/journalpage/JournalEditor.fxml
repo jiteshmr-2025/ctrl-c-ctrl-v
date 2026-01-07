@@ -7,67 +7,80 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-
 <BorderPane stylesheets="@journal.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="journalpage.JournalEditorController" prefWidth="700" prefHeight="600">
-   
-   <top>
-      <VBox styleClass="header-section" BorderPane.alignment="CENTER">
-         <children>
-            <Label styleClass="title-label" text="JOURNAL EDITOR" />
-            <HBox alignment="CENTER" spacing="10.0">
-               <children>
-                  <Label text="Date:" styleClass="field-label" />
-                  <DatePicker fx:id="datePicker" styleClass="date-picker" />
-               </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </HBox>
-         </children>
-         <padding>
-            <Insets top="30.0" bottom="20.0" left="40.0" right="40.0" />
-         </padding>
-      </VBox>
-   </top>
+            fx:controller="journalpage.JournalEditorController" prefWidth="1100" prefHeight="800">
    
    <center>
-      <VBox spacing="15.0" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" BorderPane.alignment="CENTER">
          <children>
-            <Label text="Your Journal Entry:" styleClass="section-label" />
-            <TextArea fx:id="journalTextArea" styleClass="journal-textarea" 
-                      promptText="Write your thoughts here..." 
-                      wrapText="true" 
-                      VBox.vgrow="ALWAYS" 
-                      prefHeight="300" />
             
-            <HBox spacing="20.0" alignment="CENTER_LEFT">
+            <VBox styleClass="journal-card" maxWidth="900" spacing="0" alignment="TOP_CENTER">
                <children>
-                  <Label fx:id="weatherLabel" text="Weather: Loading..." styleClass="info-label" />
-                  <Label fx:id="moodLabel" text="Mood: -" styleClass="info-label" />
+                  
+                  <HBox alignment="CENTER_LEFT" spacing="20" styleClass="card-header">
+                     <children>
+                        <VBox>
+                           <Label styleClass="title-label" text="Daily Entry" />
+                           <Label styleClass="subtitle-label" text="Capture your thoughts" />
+                        </VBox>
+                        
+                        <Region HBox.hgrow="ALWAYS" />
+                        
+                        <DatePicker fx:id="datePicker" styleClass="minimal-datepicker" />
+                        
+                        <Region prefWidth="1" prefHeight="20" style="-fx-background-color: #3f3f46;" />
+                        
+                        <Button fx:id="cancelButton" styleClass="text-button" text="Discard" onAction="#handleClose" />
+                        
+                     </children>
+                     <padding>
+                        <Insets top="30" right="40" bottom="20" left="40"/>
+                     </padding>
+                  </HBox>
+
+                  <Region styleClass="separator-line" />
+
+                  <VBox spacing="15" VBox.vgrow="ALWAYS">
+                     <children>
+                        <TextArea fx:id="journalTextArea" styleClass="journal-textarea" 
+                                  promptText="Start typing..." 
+                                  wrapText="true" 
+                                  VBox.vgrow="ALWAYS" 
+                                  prefHeight="450" />
+                        
+                        <HBox spacing="15.0" alignment="CENTER_LEFT">
+                           <Label fx:id="weatherLabel" text="Weather: --" styleClass="meta-label" />
+                           <Label text="|" styleClass="meta-divider" />
+                           <Label fx:id="moodLabel" text="Mood: --" styleClass="meta-label" />
+                           <Region HBox.hgrow="ALWAYS" />
+                           <Label fx:id="statusLabel" text="UNSAVED" styleClass="status-label" />
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets top="20" right="40" bottom="30" left="40"/>
+                     </padding>
+                  </VBox>
+
+                  <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="card-footer">
+                     <children>
+                        <Button styleClass="secondary-button" text="Analyze Mood" onAction="#handleAnalyzeMood" />
+                        <Button fx:id="saveButton" styleClass="primary-button" text="Save Entry" onAction="#handleSave" />
+                     </children>
+                     <padding>
+                        <Insets top="20" right="40" bottom="20" left="40"/>
+                     </padding>
+                  </HBox>
+
                </children>
-            </HBox>
+            </VBox>
             
-            <Label fx:id="statusLabel" text="Ready" styleClass="status-label" />
          </children>
          <padding>
-            <Insets top="20.0" bottom="20.0" left="40.0" right="40.0" />
+            <Insets top="20" bottom="20" left="20" right="20" />
          </padding>
       </VBox>
    </center>
-   
-   <bottom>
-      <HBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
-         <children>
-            <Button fx:id="saveButton" styleClass="action-button" text="Save Journal" onAction="#handleSave" />
-            <Button styleClass="secondary-button" text="Analyze Mood" onAction="#handleAnalyzeMood" />
-            <Button fx:id="cancelButton" styleClass="text-button" text="Cancel" onAction="#handleClose" />
-         </children>
-         <padding>
-            <Insets top="20.0" bottom="30.0" left="40.0" right="40.0" />
-         </padding>
-      </HBox>
-   </bottom>
    
 </BorderPane>
