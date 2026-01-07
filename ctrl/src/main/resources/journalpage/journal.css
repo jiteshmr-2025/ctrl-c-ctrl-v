@@ -49,7 +49,7 @@
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: white;
-    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-color: #2a2a2a;
     -fx-background-radius: 10;
     -fx-border-color: rgba(255, 255, 255, 0.2);
     -fx-border-radius: 10;
@@ -62,7 +62,7 @@
 }
 
 .journal-textarea .content {
-    -fx-background-color: transparent;
+    -fx-background-color: #2a2a2a;
 }
 
 /* --- DATE PICKER --- */
@@ -83,9 +83,9 @@
 
 /* --- BUTTONS --- */
 .action-button {
-    -fx-background-color: white;
+    -fx-background-color: #2e7d32;
     -fx-background-radius: 50;
-    -fx-text-fill: #1a1a1a;
+    -fx-text-fill: white;
     -fx-font-family: "Segoe UI Semibold";
     -fx-font-size: 15px;
     -fx-padding: 12 35 12 35;
@@ -94,6 +94,7 @@
 }
 
 .action-button:hover {
+    -fx-background-color: #1b5e20;
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
@@ -120,13 +121,20 @@
 }
 
 .text-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: rgba(255, 255, 255, 0.7);
-    -fx-font-size: 14px;
+    -fx-background-color: #d32f2f;
+    -fx-background-radius: 50;
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 15px;
+    -fx-padding: 12 35 12 35;
     -fx-cursor: hand;
-    -fx-border-color: transparent transparent rgba(255,255,255,0.4) transparent;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);
 }
 
 .text-button:hover {
+    -fx-background-color: #b71c1c;
     -fx-text-fill: white;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
