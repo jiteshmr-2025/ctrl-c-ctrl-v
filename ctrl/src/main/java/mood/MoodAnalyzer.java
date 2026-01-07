@@ -11,8 +11,8 @@ public class MoodAnalyzer {
         API_Post api = new API_Post();
 
         try {
-            // Load API token from .env
-            Map<String, String> env = EnvLoader.loadEnv(".env");
+            // Load API token from .env (auto-finds the file)
+            Map<String, String> env = EnvLoader.loadEnv();
             String bearerToken = env.get("BEARER_TOKEN");
             if (bearerToken == null || bearerToken.isEmpty()) {
                 return "Error: BEARER_TOKEN is not set in the environment.";
