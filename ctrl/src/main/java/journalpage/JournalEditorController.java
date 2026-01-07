@@ -106,11 +106,12 @@ public class JournalEditorController {
                 String weather = WeatherBackgroundManager.getCurrentWeather();
                 
                 // Analyze mood
-                String fullMood = "Unknown";
+                java.util.concurrent.atomic.AtomicReference<String> fullMoodRef = new java.util.concurrent.atomic.AtomicReference<>("Unknown");
                 String chartMood = "Unknown";
                 try {
-                    fullMood = MoodAnalyzer.analyzeMood(entry);
-                    chartMood = extractMoodCategory(fullMood);
+                    String analyzed = MoodAnalyzer.analyzeMood(entry);
+                    fullMoodRef.set(analyzed);
+                    chartMood = extractMoodCategory(analyzed);
                 } catch (Exception e) {
                     System.err.println("Mood analysis failed: " + e.getMessage());
                 }
@@ -120,7 +121,7 @@ public class JournalEditorController {
                 
                 Platform.runLater(() -> {
                     statusLabel.setText("Journal saved successfully!");
-                    moodLabel.setText("Mood: " + fullMood);
+                    moodLabel.setText("Mood: " + fullMoodRef.get());
                     weatherLabel.setText("Weather: " + weather);
                     saveButton.setDisable(false);
                     
