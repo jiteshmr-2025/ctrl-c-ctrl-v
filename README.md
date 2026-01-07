@@ -271,13 +271,13 @@ The project follows a **Modular Object-Oriented Design** approach with the follo
    ```java
    List<LocalDate> dates = new ArrayList<>();
    // Stores the last 4 days for quick access
-   // Example: [2025-10-11, 2025-10-10, 2025-10-09, 2025-10-08]
+   // Example: [2026-01-15, 2026-01-14, 2026-01-13, 2026-01-12]
    ```
 
 2. **Entry Data Array** (`String[]`)
    ```java
-   String[] entry = {date, email, entry, weather, mood}
-   // Example: ["2025-10-05", "user@student.fop", "Journal entry text", "Sunny", "Positive"]
+   String[] entryData = {date, email, entryText, weather, mood}
+   // Example: ["2026-01-15", "user@student.fop", "Journal entry text", "Sunny", "Positive"]
    ```
 
 3. **JSON Array Processing**
