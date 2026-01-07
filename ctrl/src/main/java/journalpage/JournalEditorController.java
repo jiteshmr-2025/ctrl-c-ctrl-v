@@ -159,6 +159,10 @@ public class JournalEditorController {
         if (fullMood == null) {
             return "Unknown";
         }
+        // Handle API errors - don't store error messages as mood categories
+        if (fullMood.startsWith("Error:") || fullMood.toLowerCase().contains("error")) {
+            return "Unknown";
+        }
         if (fullMood.contains("(")) {
             return fullMood.substring(0, fullMood.indexOf("(")).trim();
         }
