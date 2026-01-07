@@ -59,8 +59,8 @@ public class SummaryController {
                 moodChartContainer.setVisible(true);
                 weatherChartContainer.setVisible(true);
 
-                // Populate mood chart
-                populateChart(moodChartContainer, summaryData.getMoodCounts(), summaryData.getTotalEntries());
+                // Populate mood chart (only Positive and Negative)
+                populateMoodChart(moodChartContainer, summaryData.getMoodCounts(), summaryData.getTotalEntries());
 
                 // Populate weather chart
                 populateChart(weatherChartContainer, summaryData.getWeatherCounts(), summaryData.getTotalEntries());
@@ -70,6 +70,47 @@ public class SummaryController {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private void populateMoodChart(VBox container, Map<String, Integer> data, int total) {
+        // Clear existing content (except the first child which is the title)
+        if (container.getChildren().size() > 1) {
+            container.getChildren().remove(1, container.getChildren().size());
+        }
+
+        // Count only Negative and Positive (anything not Negative is Positive)
+        int negativeCount = 0;
+        int positiveCount = 0;
+        
+        for (Map.Entry<String, Integer> entry : data.entrySet()) {
+            String label = entry.getKey();
+            int count = entry.getValue();
+            
+            if ("Negative".equalsIgnoreCase(label)) {
+                negativeCount += count;
+            } else {
+                // Everything else (Positive, Unknown, errors, etc.) counts as Positive
+                positiveCount += count;
+            }
+        }
+
+        // Display Negative
+        double negPercentage = (negativeCount * 100.0) / total;
+        int negBarLength = (int) (negPercentage / 5);
+        StringBuilder negBar = new StringBuilder();
+        for (int k = 0; k < negBarLength; k++) negBar.append("█");
+        Label negLabel = new Label(String.format("%-15s | %-15s | %.1f%%", "Negative", negBar.toString(), negPercentage));
+        negLabel.setStyle("-fx-font-family: 'Courier New', monospace; -fx-font-size: 14px; -fx-text-fill: white;");
+        container.getChildren().add(negLabel);
+
+        // Display Positive
+        double posPercentage = (positiveCount * 100.0) / total;
+        int posBarLength = (int) (posPercentage / 5);
+        StringBuilder posBar = new StringBuilder();
+        for (int k = 0; k < posBarLength; k++) posBar.append("█");
+        Label posLabel = new Label(String.format("%-15s | %-15s | %.1f%%", "Positive", posBar.toString(), posPercentage));
+        posLabel.setStyle("-fx-font-family: 'Courier New', monospace; -fx-font-size: 14px; -fx-text-fill: white;");
+        container.getChildren().add(posLabel);
     }
 
     private void populateChart(VBox container, Map<String, Integer> data, int total) {
