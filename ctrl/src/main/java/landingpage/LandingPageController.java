@@ -122,6 +122,8 @@ public class LandingPageController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Journal Editor");
             stage.setScene(new Scene(root));
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
             System.out.println("Showing journal editor window");
             stage.show();
         } catch (IOException e) { 
@@ -145,6 +147,8 @@ public class LandingPageController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Weekly Summary");
             stage.setScene(new Scene(root));
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
             System.out.println("Showing summary window");
             stage.show();
         } catch (IOException e) { 
