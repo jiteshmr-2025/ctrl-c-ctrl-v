@@ -11,7 +11,6 @@ import java.util.Map;
  */
 public class MongoDBConnection {
     private static final String DATABASE_NAME = "SmartJournalDB";
-    private static final String ENV_FILE = ".env";
     
     private static volatile MongoClient mongoClient = null;
     private static volatile MongoDatabase database = null;
@@ -24,8 +23,8 @@ public class MongoDBConnection {
      * @return the MongoDB connection string
      */
     private static String getConnectionString() {
-        // First, try to load from .env file
-        Map<String, String> env = EnvLoader.loadEnv(ENV_FILE);
+        // Load from .env file (auto-finds the file)
+        Map<String, String> env = EnvLoader.loadEnv();
         String connectionString = env.get("MONGODB_URI");
         
         // If not in .env, try system environment variable
