@@ -13,7 +13,7 @@ The Smart Journaling System is a Java-based desktop application that accepts the
    - Remember me preference (y/n)
 
 2. **Journal Entry Input**:
-   - Date in yyyy-MM-dd format (e.g., "2025-10-05")
+   - Date in yyyy-MM-dd format (e.g., "2026-01-15")
    - Journal text content (String - free text)
    - Menu selections (Integer choices)
 
@@ -276,8 +276,8 @@ The project follows a **Modular Object-Oriented Design** approach with the follo
 
 2. **Entry Data Array** (`String[]`)
    ```java
-   String[] entry = {date, email, title, weather, mood}
-   // Example: ["2025-10-05", "user@student.fop", "Title", "Sunny", "Positive"]
+   String[] entry = {date, email, entry, weather, mood}
+   // Example: ["2025-10-05", "user@student.fop", "Journal entry text", "Sunny", "Positive"]
    ```
 
 3. **JSON Array Processing**
@@ -315,12 +315,12 @@ The project follows a **Modular Object-Oriented Design** approach with the follo
 Document userDoc = new Document()
     .append("email", "user@example.com")
     .append("displayName", "John Doe")
-    .append("password", "hashed_password")
+    .append("password", "plain_text_password")  // Note: Not currently hashed
     .append("rememberToken", "uuid-token");
 
 Document journalDoc = new Document()
     .append("email", "user@example.com")
-    .append("date", "2025-10-05")
+    .append("date", "2026-01-15")
     .append("entry", "Journal text content")
     .append("weather", "Sunny")
     .append("mood", "Positive");
@@ -353,7 +353,7 @@ Login successful! Welcome, John Doe
 Remember me on this device? (y/n): y
 >> Device will remember you next time!
 
-It is now Tuesday, October 5, 2025 at 2:30 PM.
+It is now Tuesday, January 15, 2026 at 2:30 PM.
 Good afternoon, John Doe!
 ```
 
@@ -367,19 +367,19 @@ Good afternoon, John Doe!
 Choose option: 2
 
 === Journal Dates ===
-1. 2025-10-05 (Today)
-2. 2025-10-04
-3. 2025-10-03
-4. 2025-10-02
+1. 2026-01-15 (Today)
+2. 2026-01-14
+3. 2026-01-13
+4. 2026-01-12
 5. View/Create journal for a custom date
 6. Weekly Summary
 7. Back to Dashboard
 
 Select an option: 1
-No journal entry found for 2025-10-05
+No journal entry found for 2026-01-15
 Would you like to create one? (y/n)
 y
-Enter your journal entry for 2025-10-05:
+Enter your journal entry for 2026-01-15:
 Today was a productive day! I finished my assignment and learned about APIs.
 
 Fetching weather info... [Sunny]
@@ -390,10 +390,10 @@ Journal saved to Database!
 **Scenario 3: Weekly Summary**
 ```
 === Journal Dates ===
-1. 2025-10-05 (Today)
-2. 2025-10-04
-3. 2025-10-03
-4. 2025-10-02
+1. 2026-01-15 (Today)
+2. 2026-01-14
+3. 2026-01-13
+4. 2026-01-12
 5. View/Create journal for a custom date
 6. Weekly Summary
 7. Back to Dashboard
@@ -452,7 +452,7 @@ Invalid credentials. Please try again.
 
 **Error 4: API Failure**
 ```
-Enter your journal entry for 2025-10-05:
+Enter your journal entry for 2026-01-15:
 Network issues today!
 
 Fetching weather info... Weather fetch failed: Connection timeout
@@ -471,7 +471,7 @@ Journal saved to Database!
 Select an option: 5
 Enter date (yyyy-MM-dd): 10/05/2025
 Invalid format. Use yyyy-MM-dd
-Enter date (yyyy-MM-dd): 2025-10-05
+Enter date (yyyy-MM-dd): 2026-01-15
 ```
 
 **Error 6: Invalid Menu Choice**
