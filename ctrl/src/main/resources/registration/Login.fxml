@@ -16,7 +16,7 @@
            fx:controller="registration.LoginController">
    <children>
       
-      <MediaView fx:id="weatherView" />
+      <StackPane fx:id="videoContainer" />
       
       <Pane styleClass="cinematic-vignette" mouseTransparent="true" />
 

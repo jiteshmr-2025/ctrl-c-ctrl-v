@@ -7,14 +7,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.media.MediaView?>
 
 <StackPane fx:id="rootPane" stylesheets="@welcome.css" 
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="landingpage.LandingPageController">
    <children>
       
-      <MediaView fx:id="weatherView" />
+      <StackPane fx:id="videoContainer" />
       
       <BorderPane>
          
@@ -41,10 +40,12 @@
                <children>
                   <VBox spacing="5.0">
                      <children>
-                        <Label styleClass="greeting-intro" text="Good Morning," />
+                        <Label fx:id="greetingLabel" styleClass="greeting-intro" text="Good Morning," />
                         
                         <Label fx:id="welcomeMessageLabel" styleClass="greeting-name" text="ALEX." />
                         
+                        <Label fx:id="instructionLabel" styleClass="metadata-label" text="Press ENTER to Start" />
+
                         <HBox alignment="CENTER_LEFT" spacing="30.0">
                            <children>
                               <Button fx:id="newEntryButton" mnemonicParsing="false" onAction="#handleNewEntry" styleClass="action-button" text="+ New Entry" />

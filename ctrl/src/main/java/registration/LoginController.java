@@ -1,30 +1,28 @@
 package registration;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
-import javafx.stage.Stage;
-import landingpage.LandingPageController; // Make sure this import matches your package
-import java.io.IOException;
-import java.util.Objects;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import utils.GlobalVideoManager; // Import the new manager
 import utils.WeatherBackgroundManager;
+import java.io.IOException;
 
 public class LoginController {
 
     @FXML
     private StackPane rootPane;
+
+    // CHANGE 1: Use a Container (StackPane) instead of MediaView directly in FXML
     @FXML
-    private MediaView weatherView;
+    private StackPane videoContainer;
+
     @FXML
     private Label weatherLabel;
     @FXML
@@ -35,59 +33,44 @@ public class LoginController {
     private Label errorLabel;
 
     private final UserManager userManager = new UserManager();
-    private MediaPlayer mediaPlayer; // Keep reference to prevent garbage collection
 
     @FXML
     public void initialize() {
-        // 1. Set default loading state
         weatherLabel.setText("Loading weather...");
 
-        // 2. Run the Network/File logic in a BACKGROUND Thread
+        // 1. Fetch Weather & Video (Run in background to keep UI snappy)
         new Thread(() -> {
-
-            // A. Heavy lifting (Network call) happens here, off the UI thread
             String weather = WeatherBackgroundManager.getCurrentWeather();
             String videoFile = WeatherBackgroundManager.getVideoFileForWeather(weather);
 
-            // B. Update the UI on the JavaFX Application Thread
-            javafx.application.Platform.runLater(() -> {
+            // 2. Update Video Manager (It won't reload if the video is the same!)
+            Platform.runLater(() -> {
                 weatherLabel.setText("Current Weather: " + weather);
-                playVideo(videoFile); // Play video only after we know which one
 
-                // Resizing logic
-                if (rootPane != null && weatherView != null) {
-                    weatherView.fitWidthProperty().bind(rootPane.widthProperty());
-                    weatherView.fitHeightProperty().bind(rootPane.heightProperty());
-                    weatherView.setPreserveRatio(false);
-                }
+                // Initialize the manager
+                GlobalVideoManager.updateWeatherVideo(videoFile);
+
+                // Attach the shared view to THIS screen
+                attachVideoToBackground();
             });
-
         }).start();
     }
 
-    // --- VIDEO HELPER ---
-    private void playVideo(String fileName) {
-        try {
-            // Load video from resources/videos folder
-            String path = Objects.requireNonNull(getClass().getResource("/assets/" + fileName)).toExternalForm();
+    private void attachVideoToBackground() {
+        var sharedView = GlobalVideoManager.getSharedMediaView();
 
-            // Cleanup old player if exists
-            if (mediaPlayer != null) {
-                mediaPlayer.dispose();
-            }
+        if (sharedView != null && videoContainer != null) {
+            // Add the view to our container
+            videoContainer.getChildren().clear();
+            videoContainer.getChildren().add(sharedView);
 
-            mediaPlayer = new MediaPlayer(new Media(path));
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop forever
-            mediaPlayer.setMute(true); // Mute sound
-            mediaPlayer.setAutoPlay(true);
+            // Bind Size (Make it responsive)
+            sharedView.fitWidthProperty().bind(rootPane.widthProperty());
+            sharedView.fitHeightProperty().bind(rootPane.heightProperty());
+            sharedView.setPreserveRatio(false);
 
-            if (weatherView != null) {
-                weatherView.setMediaPlayer(mediaPlayer);
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error loading video: " + fileName);
-            e.printStackTrace();
+            // Send to back so it's behind the glass card
+            sharedView.toBack();
         }
     }
 

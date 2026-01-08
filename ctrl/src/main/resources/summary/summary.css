@@ -1,65 +1,168 @@
-/* --- GLOBAL --- */
-.root {
-    -fx-font-family: "Segoe UI", sans-serif;
-    -fx-background-color: linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 100%);
+/* ==========================================
+   IMMERSIVE WEEKLY LEDGER
+   ========================================== */
+
+/* 1. BACKGROUND SPOTLIGHT */
+.radial-background {
+    /* Focus center, fade to black edges */
+    -fx-background-color: radial-gradient(focus-angle 0.0deg, focus-distance 0.0%, center 50.0% 50.0%, radius 65.0%, #2b2826 0.0%, #0d0c0b 100.0%);
 }
 
-/* --- HEADER SECTION --- */
-.header-section {
-    -fx-alignment: center;
-}
-
-.title-label {
-    -fx-font-family: "Segoe UI Semibold", sans-serif;
-    -fx-font-size: 36px;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-letter-spacing: 2px;
-}
-
-.subtitle-label {
-    -fx-font-family: "Segoe UI Light", sans-serif;
-    -fx-font-size: 18px;
-    -fx-text-fill: rgba(255, 255, 255, 0.7);
-}
-
-/* --- CHART CONTAINER --- */
-.chart-container {
-    -fx-background-color: rgba(255, 255, 255, 0.05);
-    -fx-background-radius: 10;
-    -fx-padding: 20;
-    -fx-border-color: rgba(255, 255, 255, 0.1);
-    -fx-border-radius: 10;
+/* 2. MAIN CARD */
+.ledger-card {
+    -fx-background-color: #2D2A27; /* Dark Wood / Paper */
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #3D3A37;
     -fx-border-width: 1;
+    /* Deep floating shadow */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 80, 0, 0, 20);
 }
 
-.chart-title {
-    -fx-font-family: "Segoe UI Semibold", sans-serif;
-    -fx-font-size: 20px;
-    -fx-text-fill: rgba(255, 255, 255, 0.9);
-    -fx-padding: 0 0 10 0;
+/* 3. TEXT HEADERS */
+.header-title {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 28px;
+    -fx-text-fill: #F5F1E8; /* Cream */
 }
 
-.no-data-label {
+.header-subtitle {
     -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #D4915D; /* Orange Accent */
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+    -fx-opacity: 0.9;
+}
+
+/* 4. LEFT PANE (TIMELINE) */
+/* Key Fix: Transparent backgrounds for the list */
+.ledger-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+.ledger-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+.ledger-list-container {
+    -fx-background-color: transparent;
+}
+
+/* The Row Divider */
+.ledger-divider .line {
+    -fx-border-color: #3D3A37;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Individual Rows */
+.ledger-row {
+    -fx-padding: 18 0 18 0;
+    -fx-border-color: #403d3a;
+    
+    /* FIX: Changed from 'segments(...)' to 'dashed' to stop the parsing error */
+    -fx-border-style: dashed; 
+    
+    -fx-border-width: 0 0 1 0;
+}
+
+.ledger-row:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Date Text */
+.date-column {
+    -fx-text-fill: #8A7F6F; /* Muted */
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+.date-number {
+    -fx-font-family: "Georgia", serif;
+    -fx-text-fill: #C4B5A0; /* Sand */
+    -fx-font-size: 20px;
+}
+
+/* Data Text */
+.entry-text-mood {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #e5e7eb; /* Light Grey */
+}
+.entry-text-weather {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #9ca3af; /* Dim Grey */
+}
+
+/* 5. RIGHT PANE (INSIGHTS) */
+.insight-panel {
+    -fx-background-color: rgba(0, 0, 0, 0.25); /* Darker sidebar */
+    -fx-background-radius: 0 12 12 0;
+}
+
+.vertical-divider .line {
+    -fx-border-color: #3D3A37;
+    -fx-border-width: 0 0 0 1;
+}
+
+.insight-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6b665f;
+    -fx-letter-spacing: 1.5px;
+}
+
+.insight-value-large {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 36px;
+    -fx-text-fill: #F5F1E8;
+}
+
+.insight-value-medium {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 24px;
+    -fx-text-fill: #e0dcd5;
+}
+
+.insight-subtext {
+    -fx-font-size: 12px;
+    -fx-text-fill: #8A7F6F;
+    -fx-font-style: italic;
+}
+
+.insight-separator .line {
+    -fx-border-color: #3D3A37;
+    -fx-border-style: segments(2, 4);
+}
+
+.insight-quote {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-style: italic;
     -fx-font-size: 16px;
-    -fx-text-fill: rgba(255, 255, 255, 0.6);
-    -fx-alignment: center;
+    -fx-text-fill: #D4915D;
+    -fx-line-spacing: 5px;
 }
 
-/* --- BUTTONS --- */
-.action-button {
-    -fx-background-color: white;
-    -fx-background-radius: 50;
-    -fx-text-fill: #1a1a1a;
-    -fx-font-family: "Segoe UI Semibold";
-    -fx-font-size: 15px;
-    -fx-padding: 12 35 12 35;
+/* Buttons */
+.close-icon-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b665f;
+    -fx-font-size: 14px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);
+}
+.close-icon-button:hover {
+    -fx-text-fill: #ececec;
 }
 
-.action-button:hover {
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
+.primary-action-button {
+    -fx-background-color: #D4915D;
+    -fx-text-fill: #2b2826;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 12 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.primary-action-button:hover {
+    -fx-background-color: #e6a673;
 }

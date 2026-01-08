@@ -9,14 +9,13 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.media.MediaView?>
 
 <StackPane fx:id="rootPane" stylesheets="@glass.css" 
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="registration.RegisterController">
    <children>
       
-      <MediaView fx:id="weatherView" />
+      <StackPane fx:id="videoContainer" />
       
       <Pane styleClass="cinematic-vignette" mouseTransparent="true" />
 

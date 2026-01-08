@@ -6,7 +6,9 @@ import org.bson.Document;
 import utils.MongoDBConnection;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SummaryPage {
@@ -75,6 +77,28 @@ public class SummaryPage {
         }
     }
     
+    // This fetches the actual list of entries for the UI to display in the scroll pane
+    public static List<String[]> getWeeklyJournalEntries(String currentUserEmail) {
+        List<String[]> entriesList = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        // Loop from today backwards for 7 days
+        for (int i = 0; i < 7; i++) {
+            LocalDate targetDate = today.minusDays(i);
+            String dateString = targetDate.toString();
+
+            String[] entry = getEntryForDate(currentUserEmail, dateString);
+            
+            // If an entry exists for this date, add it. 
+            // If not, we can optionally add a placeholder or skip it.
+            // Here we skip it to only show days user journaled.
+            if (entry != null) {
+                entriesList.add(entry);
+            }
+        }
+        return entriesList;
+    }
+    
     // Helper method to get summary data for GUI
     public static SummaryData getWeeklySummaryData(String currentUserEmail) {
         Map<String, Integer> moodCounts = new HashMap<>();
@@ -127,4 +151,6 @@ public class SummaryPage {
             return totalEntries;
         }
     }
+    
+    
 }

@@ -1,0 +1,602 @@
+/* ==========================================
+   JOURNAL EDITOR - COZY MINIMALIST THEME
+   Homely feeling of writing at your table
+   ========================================== */
+
+/* --- GLOBAL CLAUDE-LIKE THEME --- */
+.root-pane {
+    -fx-font-family: "Segoe UI", sans-serif;
+    /* Lighter, warmer dark background */
+    -fx-background-color: #211f1d; 
+}
+
+/* --- SIDEBAR --- */
+.timeline-sidebar {
+    -fx-background-color: #1a1917; /* Slightly darker than main */
+    -fx-border-color: transparent #2f2d2b transparent transparent;
+}
+
+.timeline-header {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 5 0;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d1d5db;
+    -fx-border-color: #3f3e3b;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+.sidebar-button:hover {
+    -fx-background-color: #2f2d2b;
+}
+
+/* --- TIMELINE LIST --- */
+.timeline-list {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-background-insets: 0;
+}
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb;
+    -fx-padding: 10 10 10 10;
+}
+.list-cell:filled:selected {
+    -fx-background-color: #37352f; /* Highlight color */
+    -fx-background-radius: 6;
+}
+.list-cell:filled:hover {
+    -fx-background-color: #2f2d2b;
+    -fx-background-radius: 6;
+}
+
+/* --- MAIN STAGE --- */
+.content-stage {
+    -fx-background-color: #211f1d;
+}
+
+/* --- HEADERS --- */
+.header-title {
+    -fx-font-size: 28px;
+    -fx-text-fill: #ececec;
+    -fx-font-weight: bold;
+}
+
+.header-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9ca3af;
+}
+
+/* --- THE PAPER SHEET EFFECT --- */
+.paper-sheet {
+    /* The paper card look */
+    -fx-background-color: #262523; 
+    -fx-background-radius: 8;
+    -fx-border-color: #33312e;
+    -fx-border-radius: 8;
+    /* Drop Shadow effect simulation */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 20, 0, 0, 4);
+    -fx-padding: 20;
+    -fx-min-height: 400;
+}
+
+.journal-text-area {
+    -fx-font-family: "Georgia", "Times New Roman", serif; /* Serif for writing feel */
+    -fx-font-size: 16px;
+    -fx-text-fill: #e5e7eb;
+    -fx-background-color: transparent;
+}
+
+/* Remove default TextArea scroll pane styling to blend it in */
+.journal-text-area .viewport,
+.journal-text-area .content {
+    -fx-background-color: transparent;
+}
+.journal-text-area:focused {
+    -fx-background-color: transparent;
+}
+
+/* --- BOTTOM CONTROLS --- */
+.metadata-pill {
+    -fx-background-color: #2f2d2b;
+    -fx-background-radius: 15;
+    -fx-padding: 6 12 6 12;
+}
+
+.metadata-text {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 12px;
+}
+
+.primary-button {
+    -fx-background-color: #d97706; /* Amber accent */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.primary-button:hover {
+    -fx-background-color: #b45309;
+}
+
+.secondary-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9ca3af;
+    -fx-border-color: #3f3e3b;
+    -fx-border-radius: 6;
+    -fx-padding: 7 15;
+    -fx-cursor: hand;
+}
+.secondary-button:hover {
+    -fx-text-fill: white;
+    -fx-border-color: #6b7280;
+}
+
+/* Color Palette - Warm & Cozy */
+.root-pane {
+    /* Main Colors */
+    -fx-bg-primary: #1A1614;
+    -fx-bg-secondary: #242220;
+    -fx-bg-elevated: #2D2A27;
+    
+    /* Text Colors */
+    -fx-text-primary: #F5F1E8;
+    -fx-text-secondary: #C4B5A0;
+    -fx-text-tertiary: #8A7F6F;
+    
+    /* Accent Colors */
+    -fx-accent-warm: #D4915D;
+    -fx-accent-gold: #C9A86A;
+    -fx-accent-sage: #8B9B7A;
+    
+    /* Paper colors */
+    -fx-paper-base: #2D2A27;
+    -fx-paper-light: #32302D;
+    
+    /* Border & Divider */
+    -fx-custom-border: #3D3A37;
+    -fx-divider-color: #353330;
+    
+    /* Warm dark wood table background */
+    -fx-background-color: 
+        linear-gradient(to bottom, 
+            #1A1614 0%,
+            #1C1816 50%,
+            #18150F 100%);
+}
+
+/* ==========================================
+   MAIN CONTAINER
+   ========================================== */
+.main-container {
+    -fx-background-color: transparent;
+}
+
+/* ==========================================
+   HEADER BAR - More compact and centered
+   ========================================== */
+.header-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 20 0 16 0;
+}
+
+.header-title {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 600;
+    -fx-font-size: 22px;
+}
+
+.header-subtitle {
+    -fx-text-fill: -fx-text-tertiary;
+    -fx-padding: 2 0 0 0;
+    -fx-font-size: 12px;
+}
+
+.header-divider {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}
+
+/* ==========================================
+   DATE PICKER - Dark themed to match
+   ========================================== */
+.date-picker {
+    -fx-background-color: rgba(45, 42, 39, 0.8);
+    -fx-border-color: rgba(200, 168, 106, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+}
+
+.date-picker:hover {
+    -fx-border-color: rgba(200, 168, 106, 0.5);
+    -fx-background-color: rgba(50, 47, 44, 0.9);
+}
+
+.date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.date-picker .arrow {
+    -fx-background-color: -fx-text-secondary;
+}
+
+/* Calendar popup */
+.date-picker-popup {
+    -fx-background-color: #2D2A27;
+    -fx-border-color: rgba(200, 168, 106, 0.3);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 20, 0, 0, 4);
+}
+
+/* ==========================================
+   CLOSE BUTTON - Subtle and minimal
+   ========================================== */
+.close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-tertiary;
+    -fx-border-color: transparent;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 16;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.close-button:hover {
+    -fx-background-color: rgba(45, 42, 39, 0.6);
+    -fx-text-fill: -fx-text-secondary;
+}
+
+.close-button:pressed {
+    -fx-background-color: rgba(45, 42, 39, 0.8);
+}
+
+/* ... [KEEP YOUR EXISTING COLORS AND ROOT PANE STYLES] ... */
+
+/* ==========================================
+   LAYOUT SPLIT - New
+   ========================================== */
+.split-pane-divider {
+    -fx-padding: 0 1 0 1;
+    -fx-background-color: transparent;
+}
+
+/* ==========================================
+   TIMELINE SIDEBAR - New
+   ========================================== */
+.timeline-sidebar {
+    -fx-background-color: #1A1614; /* Darker than editor */
+    -fx-border-color: rgba(200, 168, 106, 0.1);
+    -fx-border-width: 0 1 0 0; /* Right border only */
+    -fx-padding: 24 0 24 0;
+}
+
+.timeline-header {
+    -fx-text-fill: #8A7F6F; /* Tertiary text */
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 11px;
+    -fx-padding: 0 24 12 24;
+    -fx-opacity: 0.8;
+    -fx-letter-spacing: 1px;
+}
+
+/* Timeline List View */
+.timeline-list {
+    -fx-background-color: transparent;
+    -fx-padding: 0 12;
+}
+
+.timeline-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 12;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.timeline-list .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.timeline-list .list-cell:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.03);
+}
+
+.timeline-list .list-cell:selected {
+    -fx-background-color: rgba(212, 145, 93, 0.15); /* Warm accent low opacity */
+}
+
+/* Timeline Item Text Styles */
+.timeline-date-label {
+    -fx-text-fill: #F5F1E8;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 13px;
+}
+
+.timeline-preview-label {
+    -fx-text-fill: #8A7F6F;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 12px;
+}
+
+.timeline-list .list-cell:selected .timeline-date-label {
+    -fx-text-fill: #D4915D; /* Accent Warm */
+}
+
+/* New Entry Button in Sidebar */
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #D4915D;
+    -fx-border-color: rgba(212, 145, 93, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 12px;
+    -fx-alignment: CENTER;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: rgba(212, 145, 93, 0.1);
+    -fx-border-color: #D4915D;
+}
+
+/* ... [KEEP YOUR EXISTING EDITOR AND DATEPICKER STYLES] ... */
+
+/* ==========================================
+   EDITOR CONTAINER - Centered with max width
+   ========================================== */
+.editor-container {
+    -fx-background-color: transparent;
+    -fx-padding: 24 120 24 120;
+}
+
+/* --- SIDEBAR BUTTON (New Entry) --- */
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d1d5db;
+    -fx-border-color: #3f3e3b;
+    
+    /* ROUNDER & SMALLER */
+    -fx-background-radius: 50; /* Makes it fully round (pill shape) */
+    -fx-border-radius: 50;
+    -fx-padding: 6 12;         /* Reduce padding to make it smaller */
+    -fx-font-size: 12px;       /* Slightly smaller text for the button */
+    -fx-alignment: CENTER;
+    
+    /* Make the button itself distinct from the full width */
+    -fx-max-width: 160;        /* Constrain width so it's not huge */
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #2f2d2b;
+    -fx-border-color: #6b7280;
+    -fx-text-fill: white;
+}
+
+/* --- TIMELINE TEXT (Bigger Fonts) --- */
+.timeline-date-label {
+    -fx-text-fill: #ececec;
+    -fx-font-size: 15px;       /* Increased from default */
+    -fx-font-weight: bold;
+}
+
+.timeline-preview-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 13px;       /* Increased from default */
+}
+
+/* Ensure the list cells allow space for the bigger fonts */
+.list-cell {
+    -fx-padding: 12 10 12 10; /* A bit more breathing room */
+}
+
+/* ==========================================
+   TEXT AREA - Paper-like notebook feeling
+   ========================================== */
+.journal-text-area {
+    -fx-max-width: 900;
+    -fx-pref-height: 450;
+    
+    /* Warm paper-like background with subtle gradient */
+    -fx-background-color: 
+        linear-gradient(to right,
+            rgba(255, 255, 255, 0.01) 0%,
+            transparent 3%,
+            transparent 97%,
+            rgba(0, 0, 0, 0.02) 100%),
+        linear-gradient(to bottom,
+            #2F2C29 0%,
+            #2D2A27 3%,
+            #2D2A27 97%,
+            #2B2825 100%);
+    
+    -fx-border-color: rgba(200, 168, 106, 0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 32 36 32 36;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-family: "Georgia", "Palatino", "Iowan Old Style", "Times New Roman", serif;
+    -fx-font-size: 17px;
+    -fx-line-spacing: 0.5em;
+    
+    /* Paper on table shadow */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 24, 0, 0, 6);
+}
+
+.journal-text-area:focused {
+    -fx-border-color: rgba(200, 168, 106, 0.4);
+    -fx-effect: 
+        dropshadow(gaussian, rgba(200, 168, 106, 0.25), 28, 0, 0, 6),
+        innershadow(gaussian, rgba(200, 168, 106, 0.08), 12, 0, 0, 0);
+}
+
+.journal-text-area .content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.journal-text-area .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.journal-text-area .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.journal-text-area .scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+/* Minimal scrollbar */
+.journal-text-area .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.journal-text-area .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(200, 168, 106, 0.25);
+    -fx-background-radius: 4;
+}
+
+.journal-text-area .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(200, 168, 106, 0.4);
+}
+
+.journal-text-area .scroll-bar:vertical .track {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+    -fx-background-radius: 4;
+}
+
+.journal-text-area .scroll-bar:vertical .increment-button,
+.journal-text-area .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Placeholder */
+.journal-text-area {
+    -fx-prompt-text-fill: rgba(138, 127, 111, 0.5);
+}
+
+/* ==========================================
+   BOTTOM BAR - Minimal and centered
+   ========================================== */
+.bottom-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 16 120 20 120;
+}
+
+/* ==========================================
+   METADATA - Weather based colors
+   ========================================== */
+.metadata-item {
+    -fx-background-color: rgba(45, 42, 39, 0.5);
+    -fx-padding: 7 15;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(200, 168, 106, 0.2);
+    -fx-border-width: 1;
+}
+
+.metadata-icon {
+    -fx-text-fill: -fx-accent-warm;
+}
+
+.metadata-text {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-size: 13px;
+}
+
+/* ==========================================
+   STATUS TEXT
+   ========================================== */
+.status-text {
+    -fx-text-fill: rgba(138, 127, 111, 0.7);
+    -fx-font-style: italic;
+    -fx-font-size: 11px;
+}
+
+/* ==========================================
+   ACTION BUTTONS - Minimal and elegant
+   ========================================== */
+.secondary-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-secondary;
+    -fx-border-color: rgba(200, 168, 106, 0.25);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-font-weight: 500;
+    -fx-font-size: 13px;
+}
+
+.secondary-button:hover {
+    -fx-background-color: rgba(45, 42, 39, 0.6);
+    -fx-border-color: rgba(200, 168, 106, 0.4);
+    -fx-text-fill: -fx-text-primary;
+}
+
+.secondary-button:pressed {
+    -fx-background-color: rgba(45, 42, 39, 0.8);
+}
+
+/* Primary button */
+.primary-button {
+    -fx-background-color: linear-gradient(to bottom, 
+        #D4915D 0%, 
+        #C88250 100%);
+    -fx-text-fill: #FFF8F0;
+    -fx-border-width: 0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10 28;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, rgba(212, 145, 93, 0.35), 12, 0, 0, 3);
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom,
+        #E19F67 0%,
+        #D4915D 100%);
+    -fx-effect: dropshadow(gaussian, rgba(212, 145, 93, 0.5), 16, 0, 0, 4);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.primary-button:pressed {
+    -fx-background-color: #C88250;
+    -fx-effect: dropshadow(gaussian, rgba(212, 145, 93, 0.25), 8, 0, 0, 2);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.primary-button:disabled {
+    -fx-background-color: rgba(138, 127, 111, 0.5);
+    -fx-opacity: 0.4;
+}

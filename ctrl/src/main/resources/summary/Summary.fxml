@@ -3,57 +3,83 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane stylesheets="@summary.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="summary.SummaryController" prefWidth="800" prefHeight="600">
-   
-   <top>
-      <VBox styleClass="header-section" BorderPane.alignment="CENTER">
-         <children>
-            <Label fx:id="titleLabel" styleClass="title-label" text="WEEKLY SUMMARY" />
-            <Label styleClass="subtitle-label" text="Past 7 Days" />
-         </children>
-         <padding>
-            <Insets top="40.0" bottom="20.0" left="60.0" right="60.0" />
-         </padding>
-      </VBox>
-   </top>
-   
-   <center>
-      <VBox spacing="40.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label fx:id="noDataLabel" styleClass="no-data-label" text="No journal entries found for this week." visible="false" />
+<StackPane styleClass="radial-background" stylesheets="@summary.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="summary.SummaryController">
+    <children>
+        <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="950.0" styleClass="ledger-card">
+            <children>
             
-            <VBox fx:id="moodChartContainer" spacing="10.0" styleClass="chart-container">
-               <children>
-                  <Label styleClass="chart-title" text="[ MOOD CHART ]" />
-               </children>
-            </VBox>
-            
-            <VBox fx:id="weatherChartContainer" spacing="10.0" styleClass="chart-container">
-               <children>
-                  <Label styleClass="chart-title" text="[ WEATHER CHART ]" />
-               </children>
-            </VBox>
-         </children>
-         <padding>
-            <Insets top="20.0" bottom="20.0" left="60.0" right="60.0" />
-         </padding>
-      </VBox>
-   </center>
-   
-   <bottom>
-      <HBox alignment="CENTER" BorderPane.alignment="CENTER">
-         <children>
-            <Button styleClass="action-button" text="Close" onAction="#handleClose" />
-         </children>
-         <padding>
-            <Insets top="20.0" bottom="40.0" left="60.0" right="60.0" />
-         </padding>
-      </HBox>
-   </bottom>
-   
-</BorderPane>
+                <VBox prefWidth="580.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <VBox>
+                            <children>
+                                <Label fx:id="titleLabel" styleClass="header-title" text="Weekly Recap" />
+                                <Label fx:id="dateRangeLabel" styleClass="header-subtitle" text="Jan 01 - Jan 07" />
+                            </children>
+                            <padding>
+                                <Insets bottom="15.0" />
+                            </padding>
+                        </VBox>
+
+                        <Separator styleClass="ledger-divider" />
+
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="ledger-scroll-pane" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="timelineContainer" spacing="0.0" styleClass="ledger-list-container" />
+                            </content>
+                        </ScrollPane>
+                    </children>
+                    <padding>
+                        <Insets bottom="30.0" left="40.0" right="30.0" top="30.0" />
+                    </padding>
+                </VBox>
+
+                <Separator orientation="VERTICAL" prefHeight="200.0" styleClass="vertical-divider" />
+
+                <VBox prefWidth="370.0" styleClass="insight-panel" HBox.hgrow="NEVER">
+                    <children>
+                        <HBox alignment="TOP_RIGHT">
+                            <Button onAction="#handleClose" mnemonicParsing="false" styleClass="close-icon-button" text="✕" />
+                        </HBox>
+
+                        <VBox spacing="30.0" VBox.vgrow="ALWAYS">
+                            <padding>
+                                <Insets top="20.0" />
+                            </padding>
+                     
+                            <VBox spacing="5.0">
+                                <Label styleClass="insight-label" text="DOMINANT MOOD" />
+                                <Label fx:id="dominantMoodLabel" styleClass="insight-value-large" text="--" />
+                                <Label fx:id="dominantMoodSubtext" styleClass="insight-subtext" text="--% of the week" />
+                            </VBox>
+
+                            <VBox spacing="5.0">
+                                <Label styleClass="insight-label" text="WEATHER HIGHLIGHT" />
+                                <Label fx:id="weatherSummaryLabel" styleClass="insight-value-medium" text="--" />
+                                <Label fx:id="weatherSummarySubtext" styleClass="insight-subtext" text="Most frequent condition" />
+                            </VBox>
+
+                            <Separator styleClass="insight-separator" />
+
+                            <VBox>
+                                <Label fx:id="aiQuoteLabel" styleClass="insight-quote" text="&quot;Your story begins here.&quot;" wrapText="true" />
+                            </VBox>
+
+                            <Region VBox.vgrow="ALWAYS" />
+
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
+                    </padding>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</StackPane>

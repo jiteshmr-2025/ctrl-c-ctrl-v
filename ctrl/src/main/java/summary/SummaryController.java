@@ -1,149 +1,210 @@
 package summary;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import registration.UserSession;
 import summary.SummaryPage.SummaryData;
+import landingpage.LandingPageController;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 public class SummaryController {
 
     @FXML private Label titleLabel;
-    @FXML private VBox moodChartContainer;
-    @FXML private VBox weatherChartContainer;
-    @FXML private Label noDataLabel;
+    @FXML private Label dateRangeLabel;
+    
+    // Left Pane (Timeline)
+    @FXML private VBox timelineContainer;
+    
+    // Right Pane (Stats)
+    @FXML private Label dominantMoodLabel;
+    @FXML private Label dominantMoodSubtext;
+    @FXML private Label weatherSummaryLabel;
+    @FXML private Label weatherSummarySubtext;
+    @FXML private Label aiQuoteLabel;
 
     @FXML
     public void initialize() {
         try {
-            loadSummaryData();
-        } catch (Exception e) {
-            System.err.println("Error loading summary data: " + e.getMessage());
-            e.printStackTrace();
-            // Show error message to user
-            noDataLabel.setText("Error loading summary: " + e.getMessage());
-            noDataLabel.setVisible(true);
-            moodChartContainer.setVisible(false);
-            weatherChartContainer.setVisible(false);
-        }
-    }
-
-    private void loadSummaryData() {
-        try {
             // Get current user email
-            String userEmail = "guest@local"; // default
+            String userEmail = "guest@local"; 
             if (UserSession.getInstance().getCurrentUser() != null) {
                 userEmail = UserSession.getInstance().getCurrentUser().getEmail();
             }
+            
+            // Set Date Range Text
+            LocalDate today = LocalDate.now();
+            LocalDate weekAgo = today.minusDays(6);
+            DateTimeFormatter rangeFmt = DateTimeFormatter.ofPattern("MMM dd");
+            dateRangeLabel.setText(weekAgo.format(rangeFmt) + " - " + today.format(rangeFmt));
 
-            System.out.println("Loading summary for user: " + userEmail);
+            // Load Data
+            loadSummaryData(userEmail);
 
-            // Fetch summary data
-            SummaryData summaryData = SummaryPage.getWeeklySummaryData(userEmail);
-
-            System.out.println("Summary data loaded. Total entries: " + summaryData.getTotalEntries());
-
-            if (summaryData.getTotalEntries() == 0) {
-                // Show "no data" message
-                noDataLabel.setVisible(true);
-                moodChartContainer.setVisible(false);
-                weatherChartContainer.setVisible(false);
-            } else {
-                // Hide "no data" message and show charts
-                noDataLabel.setVisible(false);
-                moodChartContainer.setVisible(true);
-                weatherChartContainer.setVisible(true);
-
-                // Populate mood chart (only Positive and Negative)
-                populateMoodChart(moodChartContainer, summaryData.getMoodCounts(), summaryData.getTotalEntries());
-
-                // Populate weather chart
-                populateChart(weatherChartContainer, summaryData.getWeatherCounts(), summaryData.getTotalEntries());
-            }
         } catch (Exception e) {
-            System.err.println("Error in loadSummaryData: " + e.getMessage());
+            System.err.println("Error initializing summary: " + e.getMessage());
             e.printStackTrace();
-            throw e;
         }
     }
 
-    private void populateMoodChart(VBox container, Map<String, Integer> data, int total) {
-        // Clear existing content (except the first child which is the title)
-        if (container.getChildren().size() > 1) {
-            container.getChildren().remove(1, container.getChildren().size());
+    private void loadSummaryData(String userEmail) {
+        // 1. Fetch Aggregates for Right Panel
+        SummaryData summaryData = SummaryPage.getWeeklySummaryData(userEmail);
+        updateInsightsPanel(summaryData);
+
+        // 2. Fetch Raw Entries for Left Panel
+        List<String[]> entries = SummaryPage.getWeeklyJournalEntries(userEmail);
+        populateTimeline(entries);
+    }
+
+    private void updateInsightsPanel(SummaryData data) {
+        if (data.getTotalEntries() == 0) {
+            dominantMoodLabel.setText("No Data");
+            dominantMoodSubtext.setText("Start journaling today!");
+            weatherSummaryLabel.setText("--");
+            aiQuoteLabel.setText("\"Your story begins with the first entry.\"");
+            return;
         }
 
-        // Count only Negative and Positive (anything not Negative is Positive)
-        int negativeCount = 0;
-        int positiveCount = 0;
+        // --- Calculate Dominant Mood ---
+        String topMood = "Neutral";
+        int maxCount = 0;
+        for (Map.Entry<String, Integer> entry : data.getMoodCounts().entrySet()) {
+            if (entry.getValue() > maxCount) {
+                maxCount = entry.getValue();
+                topMood = entry.getKey();
+            }
+        }
+        int moodPercentage = (int) ((maxCount * 100.0) / data.getTotalEntries());
+        dominantMoodLabel.setText(topMood);
+        dominantMoodSubtext.setText(moodPercentage + "% of the week");
+
+        // --- Calculate Top Weather ---
+        String topWeather = "Unknown";
+        int maxWeatherCount = 0;
+        for (Map.Entry<String, Integer> entry : data.getWeatherCounts().entrySet()) {
+            if (entry.getValue() > maxWeatherCount) {
+                maxWeatherCount = entry.getValue();
+                topWeather = entry.getKey();
+            }
+        }
+        weatherSummaryLabel.setText(maxWeatherCount + " days of " + topWeather);
         
-        for (Map.Entry<String, Integer> entry : data.entrySet()) {
-            String label = entry.getKey();
-            int count = entry.getValue();
-            
-            if ("Negative".equalsIgnoreCase(label)) {
-                negativeCount += count;
-            } else {
-                // Everything else (Positive, Unknown, errors, etc.) counts as Positive
-                positiveCount += count;
-            }
-        }
-
-        // Display Negative
-        double negPercentage = (negativeCount * 100.0) / total;
-        int negBarLength = (int) (negPercentage / 5);
-        StringBuilder negBar = new StringBuilder();
-        for (int k = 0; k < negBarLength; k++) negBar.append("█");
-        Label negLabel = new Label(String.format("%-15s | %-15s | %.1f%%", "Negative", negBar.toString(), negPercentage));
-        negLabel.setStyle("-fx-font-family: 'Courier New', monospace; -fx-font-size: 14px; -fx-text-fill: white;");
-        container.getChildren().add(negLabel);
-
-        // Display Positive
-        double posPercentage = (positiveCount * 100.0) / total;
-        int posBarLength = (int) (posPercentage / 5);
-        StringBuilder posBar = new StringBuilder();
-        for (int k = 0; k < posBarLength; k++) posBar.append("█");
-        Label posLabel = new Label(String.format("%-15s | %-15s | %.1f%%", "Positive", posBar.toString(), posPercentage));
-        posLabel.setStyle("-fx-font-family: 'Courier New', monospace; -fx-font-size: 14px; -fx-text-fill: white;");
-        container.getChildren().add(posLabel);
+        // --- Set Quote ---
+        setContextualQuote(topMood);
     }
 
-    private void populateChart(VBox container, Map<String, Integer> data, int total) {
-        // Clear existing content (except the first child which is the title)
-        if (container.getChildren().size() > 1) {
-            container.getChildren().remove(1, container.getChildren().size());
+    private void setContextualQuote(String mood) {
+        // Simple logic to pick a quote based on mood
+        if (mood.equalsIgnoreCase("Positive") || mood.equalsIgnoreCase("Happy")) {
+            aiQuoteLabel.setText("\"A fantastic week! Keep riding this wave of positivity.\"");
+        } else if (mood.equalsIgnoreCase("Negative") || mood.equalsIgnoreCase("Terrible")) {
+            aiQuoteLabel.setText("\"A tough week, but you made it through. Storms don't last forever.\"");
+        } else {
+            aiQuoteLabel.setText("\"A balanced week. Calm and steady progression.\"");
         }
+    }
 
-        // Add chart bars
-        for (Map.Entry<String, Integer> entry : data.entrySet()) {
-            String label = entry.getKey();
-            int count = entry.getValue();
-            double percentage = (count * 100.0) / total;
+    private void populateTimeline(List<String[]> entries) {
+        timelineContainer.getChildren().clear();
 
-            // Create bar representation
-            int barLength = (int) (percentage / 5);
-            StringBuilder bar = new StringBuilder();
-            for (int k = 0; k < barLength; k++) {
-                bar.append("█");
+        DateTimeFormatter dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dayNameFmt = DateTimeFormatter.ofPattern("EEE"); // Mon
+        DateTimeFormatter dayNumFmt = DateTimeFormatter.ofPattern("dd");  // 01
+
+        for (String[] entry : entries) {
+            try {
+                // Parse Data: [0]=date, [3]=weather, [4]=mood
+                LocalDate date = LocalDate.parse(entry[0], dbFormatter);
+                String weather = entry[3];
+                String mood = entry[4];
+
+                // Create Row Container
+                HBox row = new HBox();
+                row.getStyleClass().add("ledger-row");
+                row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+                // --- Date Column ---
+                Label dayName = new Label(date.format(dayNameFmt).toUpperCase());
+                dayName.getStyleClass().add("date-column");
+                dayName.setPrefWidth(50);
+
+                Label dayNum = new Label(date.format(dayNumFmt));
+                dayNum.getStyleClass().add("date-number");
+                
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                // --- Data Column ---
+                HBox dataGroup = new HBox(20); 
+                dataGroup.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+                Label moodLabel = new Label(getMoodIcon(mood) + " " + mood);
+                moodLabel.getStyleClass().add("entry-text-mood");
+
+                Label weatherLabel = new Label(getWeatherIcon(weather) + " " + weather);
+                weatherLabel.getStyleClass().add("entry-text-weather");
+
+                dataGroup.getChildren().addAll(moodLabel, weatherLabel);
+
+                row.getChildren().addAll(dayName, dayNum, spacer, dataGroup);
+                timelineContainer.getChildren().add(row);
+
+            } catch (Exception e) {
+                System.err.println("Skipping invalid entry: " + e.getMessage());
             }
-
-            // Create label for this entry
-            Label chartLabel = new Label(String.format("%-15s | %-15s | %.1f%%", label, bar.toString(), percentage));
-            chartLabel.setStyle("-fx-font-family: 'Courier New', monospace; -fx-font-size: 14px; -fx-text-fill: white;");
-            
-            container.getChildren().add(chartLabel);
         }
+    }
+
+    private String getMoodIcon(String mood) {
+        if (mood == null) return "😐";
+        String m = mood.toLowerCase();
+        if (m.contains("pos") || m.contains("happy") || m.contains("good")) return "🙂";
+        if (m.contains("neg") || m.contains("sad") || m.contains("terrible")) return "🙁";
+        return "😐";
+    }
+
+    private String getWeatherIcon(String weather) {
+        if (weather == null) return "❓";
+        String w = weather.toLowerCase();
+        if (w.contains("storm") || w.contains("thunder")) return "⛈️";
+        if (w.contains("rain") || w.contains("drizzle")) return "🌧️";
+        if (w.contains("cloud")) return "☁️";
+        if (w.contains("sun") || w.contains("clear")) return "☀️";
+        if (w.contains("snow")) return "❄️";
+        return "🌡️";
     }
 
     @FXML
     private void handleClose(ActionEvent event) {
-        // Close the summary window
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.close();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LandingPage.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            
+            LandingPageController controller = loader.getController();
+            if (UserSession.getInstance().getCurrentUser() != null) {
+                controller.setUserName(UserSession.getInstance().getCurrentUser().getDisplayName());
+            }
+            
+            stage.setScene(new Scene(root));
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

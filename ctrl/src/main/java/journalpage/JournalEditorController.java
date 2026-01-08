@@ -1,171 +1,342 @@
 package journalpage;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
+
+import org.bson.Document; // Import BSON Document
 import registration.UserSession;
 import mood.MoodAnalyzer;
 import utils.WeatherBackgroundManager;
-
-import java.time.LocalDate;
+import landingpage.LandingPageController;
 
 public class JournalEditorController {
 
-    @FXML private DatePicker datePicker;
-    @FXML private TextArea journalTextArea;
-    @FXML private Label weatherLabel;
-    @FXML private Label moodLabel;
-    @FXML private Label statusLabel;
-    @FXML private Button saveButton;
-    @FXML private Button cancelButton;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private TextArea journalTextArea;
+    @FXML
+    private Label weatherLabel;
+    @FXML
+    private Label moodLabel;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private ListView<TimelineEntry> timelineListView;
 
     private LocalDate selectedDate;
+    private String currentWeather = "Unknown";
+
+    private static class TimelineEntry {
+
+        LocalDate date;
+        String preview;
+
+        public TimelineEntry(LocalDate date, String preview) {
+            this.date = date;
+            this.preview = preview;
+        }
+
+        @Override
+        public String toString() {
+            return date.toString();
+        }
+    }
 
     @FXML
     public void initialize() {
-        // Set default date to today
         selectedDate = LocalDate.now();
         datePicker.setValue(selectedDate);
-        
-        // Add listener for date changes
+
+        // Handle Date Picking
         datePicker.setOnAction(event -> {
             selectedDate = datePicker.getValue();
             loadJournalForDate(selectedDate);
+            selectDateInTimeline(selectedDate);
         });
-        
-        // Load journal for today
+
+        setupTimelineCellFactory();
+        refreshTimeline();
+
+        // Load initial data
         loadJournalForDate(selectedDate);
-        
-        // Update weather in background
-        updateWeather();
+
+        // Handle Timeline Clicks
+        timelineListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.date.equals(selectedDate)) {
+                datePicker.setValue(newVal.date);
+            }
+        });
     }
 
+    // --- CORE LOGIC FIXES ---
     private void loadJournalForDate(LocalDate date) {
-        if (date == null) return;
-        
-        String entry = journalApp.readJournal(date);
-        if (entry != null) {
-            journalTextArea.setText(entry);
-            statusLabel.setText("Loaded journal for " + date);
-            analyzeMood();
-        } else {
-            journalTextArea.clear();
-            statusLabel.setText("No journal found for " + date + ". Create a new entry.");
-            moodLabel.setText("Mood: -");
-        }
-    }
-
-    private void updateWeather() {
-        new Thread(() -> {
-            String weather = WeatherBackgroundManager.getCurrentWeather();
-            Platform.runLater(() -> {
-                weatherLabel.setText("Weather: " + weather);
-            });
-        }).start();
-    }
-
-    private void analyzeMood() {
-        String entry = journalTextArea.getText();
-        if (entry == null || entry.trim().isEmpty()) {
-            moodLabel.setText("Mood: -");
+        if (date == null) {
             return;
         }
-        
-        new Thread(() -> {
-            try {
-                String moodResult = MoodAnalyzer.analyzeMood(entry);
-                Platform.runLater(() -> {
-                    moodLabel.setText("Mood: " + moodResult);
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    moodLabel.setText("Mood: Analysis failed");
-                });
+
+        // FIX: Use journalApp to get the document directly
+        Document doc = journalApp.getJournalDocument(date);
+
+        if (doc != null) {
+            // Existing Entry
+            String entryText = doc.getString("entry");
+            String weather = doc.getString("weather");
+            String mood = doc.getString("mood");
+
+            journalTextArea.setText(entryText);
+
+            currentWeather = (weather != null) ? weather : "Unknown";
+            weatherLabel.setText("Weather: " + currentWeather);
+            moodLabel.setText("Mood: " + (mood != null ? mood : "-"));
+            statusLabel.setText("Loaded entry for " + date);
+        } else {
+            // New Entry (Clean Slate)
+            journalTextArea.clear();
+            moodLabel.setText("Mood: -");
+            statusLabel.setText("New entry for " + date);
+
+            // Fetch live weather only if it's Today
+            if (date.equals(LocalDate.now())) {
+                fetchWeatherForDate(date);
+            } else {
+                weatherLabel.setText("Weather: Unknown (Past)");
             }
-        }).start();
+        }
     }
 
     @FXML
     private void handleSave(ActionEvent event) {
-        String entry = journalTextArea.getText();
-        if (entry == null || entry.trim().isEmpty()) {
+        String entryText = journalTextArea.getText();
+
+        // Prevent saving empty text which might look like a "delete"
+        if (entryText == null || entryText.trim().isEmpty()) {
             statusLabel.setText("Cannot save empty journal entry!");
             return;
         }
 
-        // Show saving status
         saveButton.setDisable(true);
         statusLabel.setText("Saving...");
 
         new Thread(() -> {
             try {
-                // Get weather
-                String weather = WeatherBackgroundManager.getCurrentWeather();
-                
-                // Analyze mood
-                java.util.concurrent.atomic.AtomicReference<String> fullMoodRef = new java.util.concurrent.atomic.AtomicReference<>("Unknown");
-                String chartMood = "Unknown";
+                // Analyze Mood
+                String analyzedMood = "Unknown";
                 try {
-                    String analyzed = MoodAnalyzer.analyzeMood(entry);
-                    fullMoodRef.set(analyzed);
-                    chartMood = extractMoodCategory(analyzed);
+                    analyzedMood = journalApp.extractMoodCategory(MoodAnalyzer.analyzeMood(entryText));
                 } catch (Exception e) {
-                    System.err.println("Mood analysis failed: " + e.getMessage());
+                    e.printStackTrace();
                 }
-                
-                // Save to database
-                journalApp.saveJournal(selectedDate, entry, weather, chartMood);
-                
+
+                final String finalMood = analyzedMood;
+
+                // FIX: Call journalApp.saveJournal directly
+                journalApp.saveJournal(selectedDate, entryText, currentWeather, finalMood);
+
+                // Simulation sleep (optional, makes UI feel responsive)
+                Thread.sleep(300);
+
                 Platform.runLater(() -> {
-                    statusLabel.setText("Journal saved successfully!");
-                    moodLabel.setText("Mood: " + fullMoodRef.get());
-                    weatherLabel.setText("Weather: " + weather);
+                    statusLabel.setText("Saved!");
+                    moodLabel.setText("Mood: " + finalMood);
                     saveButton.setDisable(false);
-                    
-                    // Close after 1 second
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(1000);
-                            Platform.runLater(() -> handleClose(event));
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }).start();
+
+                    // Update the sidebar immediately
+                    updateTimelineList(selectedDate, entryText);
                 });
+
             } catch (Exception e) {
                 Platform.runLater(() -> {
-                    statusLabel.setText("Error saving journal: " + e.getMessage());
+                    statusLabel.setText("Error: " + e.getMessage());
                     saveButton.setDisable(false);
+                    e.printStackTrace();
                 });
             }
         }).start();
     }
 
+    // --- HELPER METHODS ---
+    @FXML
+    private void handleNewEntry(ActionEvent event) {
+        LocalDate today = LocalDate.now();
+
+        // Check if today exists in timeline
+        TimelineEntry todayEntry = null;
+        for (TimelineEntry entry : timelineListView.getItems()) {
+            if (entry.date.equals(today)) {
+                todayEntry = entry;
+                break;
+            }
+        }
+
+        if (todayEntry != null) {
+            timelineListView.getSelectionModel().select(todayEntry);
+            datePicker.setValue(today);
+        } else {
+            timelineListView.getSelectionModel().clearSelection();
+            datePicker.setValue(today);
+            journalTextArea.clear();
+            journalTextArea.setPromptText("Start writing your new entry for today...");
+            moodLabel.setText("Mood: -");
+            statusLabel.setText("New Draft");
+            fetchWeatherForDate(today);
+        }
+    }
+
+    private void fetchWeatherForDate(LocalDate date) {
+        weatherLabel.setText("Weather: Loading...");
+        new Thread(() -> {
+            String weather = WeatherBackgroundManager.getWeatherForDate(date);
+            currentWeather = weather;
+            Platform.runLater(() -> weatherLabel.setText("Weather: " + weather));
+        }).start();
+    }
+
+    // ... (Keep updateTimelineList, setupTimelineCellFactory, handleAnalyzeMood, handleClose as they were) ...
+    private void updateTimelineList(LocalDate date, String text) {
+        String preview = text.replace("\n", " ").trim();
+        if (preview.length() > 30) {
+            preview = preview.substring(0, 30) + "...";
+        }
+
+        TimelineEntry existingEntry = null;
+        for (TimelineEntry item : timelineListView.getItems()) {
+            if (item.date.equals(date)) {
+                existingEntry = item;
+                break;
+            }
+        }
+
+        if (existingEntry != null) {
+            existingEntry.preview = preview;
+            timelineListView.refresh();
+        } else {
+            TimelineEntry newEntry = new TimelineEntry(date, preview);
+            timelineListView.getItems().add(0, newEntry);
+            timelineListView.getItems().sort((a, b) -> b.date.compareTo(a.date));
+            timelineListView.getSelectionModel().select(newEntry);
+        }
+    }
+
+    private void setupTimelineCellFactory() {
+        timelineListView.setCellFactory(param -> new ListCell<TimelineEntry>() {
+            @Override
+            protected void updateItem(TimelineEntry item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox container = new VBox(4);
+                    container.setAlignment(Pos.CENTER_LEFT);
+
+                    // Date Label
+                    Label dateLbl = new Label(item.date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")));
+                    dateLbl.getStyleClass().add("timeline-date-label"); // Must match CSS
+
+                    // Preview Label
+                    Label previewLbl = new Label(item.preview);
+                    previewLbl.getStyleClass().add("timeline-preview-label"); // Must match CSS
+
+                    container.getChildren().addAll(dateLbl, previewLbl);
+                    setGraphic(container);
+                }
+            }
+        });
+    }
+
+    private void refreshTimeline() {
+        // 1. Clear current list
+        timelineListView.getItems().clear();
+
+        // 2. Fetch real data from MongoDB
+        List<Document> allEntries = journalApp.getAllUserJournals();
+        List<TimelineEntry> uiEntries = new ArrayList<>();
+
+        // 3. Convert Documents to Timeline Entries
+        for (Document doc : allEntries) {
+            try {
+                String dateStr = doc.getString("date");
+                String fullText = doc.getString("entry");
+
+                if (dateStr != null && fullText != null) {
+                    LocalDate date = LocalDate.parse(dateStr); // Assumes yyyy-MM-dd format
+
+                    // Create a short preview
+                    String preview = fullText.replace("\n", " ").trim();
+                    if (preview.length() > 30) {
+                        preview = preview.substring(0, 30) + "...";
+                    }
+
+                    uiEntries.add(new TimelineEntry(date, preview));
+                }
+            } catch (Exception e) {
+                System.err.println("Skipping invalid entry: " + e.getMessage());
+            }
+        }
+
+        // 4. Update the UI
+        timelineListView.getItems().setAll(uiEntries);
+    }
+
+    private void selectDateInTimeline(LocalDate date) {
+        for (TimelineEntry entry : timelineListView.getItems()) {
+            if (entry.date.equals(date)) {
+                timelineListView.getSelectionModel().select(entry);
+                return;
+            }
+        }
+        timelineListView.getSelectionModel().clearSelection();
+    }
+
     @FXML
     private void handleAnalyzeMood(ActionEvent event) {
-        analyzeMood();
+        String entry = journalTextArea.getText();
+        if (entry == null || entry.trim().isEmpty()) {
+            return;
+        }
+        new Thread(() -> {
+            try {
+                String moodResult = MoodAnalyzer.analyzeMood(entry);
+                Platform.runLater(() -> moodLabel.setText("Mood: " + moodResult));
+            } catch (Exception e) {
+                Platform.runLater(() -> moodLabel.setText("Mood: Error"));
+            }
+        }).start();
     }
 
     @FXML
     private void handleClose(ActionEvent event) {
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.close();
-    }
-
-    private String extractMoodCategory(String fullMood) {
-        if (fullMood == null) {
-            return "Unknown";
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LandingPage.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            LandingPageController controller = loader.getController();
+            if (UserSession.getInstance().getCurrentUser() != null) {
+                controller.setUserName(UserSession.getInstance().getCurrentUser().getDisplayName());
+            }
+            stage.setScene(new Scene(root));
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        // Handle API errors - don't store error messages as mood categories
-        if (fullMood.startsWith("Error:") || fullMood.toLowerCase().contains("error")) {
-            return "Unknown";
-        }
-        if (fullMood.contains("(")) {
-            return fullMood.substring(0, fullMood.indexOf("(")).trim();
-        }
-        return fullMood;
     }
 }

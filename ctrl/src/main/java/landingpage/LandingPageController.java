@@ -8,97 +8,142 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import registration.UserSession;
-import utils.WeatherBackgroundManager; 
+import utils.GlobalVideoManager; // Import shared manager
+import utils.WeatherBackgroundManager;
+import welcome.welcome;
 
 public class LandingPageController {
 
     @FXML private StackPane rootPane;
-    @FXML private MediaView weatherView;
-    @FXML private Label welcomeMessageLabel; // This will now hold JUST the name
+    
+    // NEW: Container for the shared video (Replaces MediaView)
+    @FXML private StackPane videoContainer; 
+    
+    @FXML private Label welcomeMessageLabel;
+    @FXML private Label greetingLabel;       // Displays the GREETING ("Good Morning,")
     @FXML private Label dateTimeLabel;
+    @FXML private Label instructionLabel; 
 
-    private MediaPlayer mediaPlayer;
-    private String currentUserName = "User"; 
+    private String currentUserName = "User";
 
     @FXML
     public void initialize() {
         startDynamicClock();
-        
-        // Load weather video in background
+
+        // 1. Setup ESC key handler
+        Platform.runLater(() -> {
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            if (stage != null) {
+                setupEscapeKeyHandler(stage);
+                rootPane.requestFocus();
+            }
+        });
+
+        if (instructionLabel != null) {
+            instructionLabel.setText("Press ENTER to Start  •  Press ESC to Exit");
+        }
+
+        // 2. Setup Enter/Esc Keys
+        rootPane.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ENTER:
+                    handleNewEntry();
+                    break;
+                case ESCAPE:
+                    Platform.exit();
+                    System.exit(0);
+                    break;
+            }
+        });
+
+        // 3. Load Weather Video (The Lag Fix)
         new Thread(() -> {
-            String weather = WeatherBackgroundManager.getCurrentWeather();
+            LocalDate today = LocalDate.now();
+            String weather = WeatherBackgroundManager.getWeatherForDate(today);
             String videoFile = WeatherBackgroundManager.getVideoFileForWeather(weather);
-            
+
             Platform.runLater(() -> {
-                playVideo(videoFile);
-                setupResizing();
+                // Initialize/Update the shared video manager
+                GlobalVideoManager.updateWeatherVideo(videoFile);
+                
+                // Attach the shared view to THIS screen
+                attachVideoToBackground();
             });
         }).start();
     }
 
+    private void attachVideoToBackground() {
+        var sharedView = GlobalVideoManager.getSharedMediaView();
+
+        if (sharedView != null && videoContainer != null) {
+            // Clear old children, add shared video
+            videoContainer.getChildren().clear();
+            videoContainer.getChildren().add(sharedView);
+
+            // Bind Size (Responsive Background)
+            sharedView.fitWidthProperty().bind(rootPane.widthProperty());
+            sharedView.fitHeightProperty().bind(rootPane.heightProperty());
+            sharedView.setPreserveRatio(false);
+            
+            // Send to back so it sits behind the UI
+            sharedView.toBack();
+        }
+    }
+
     public void setUserName(String name) {
         this.currentUserName = name;
-        // FIX: Display ONLY the name in uppercase (The "Good Morning" is static in FXML)
         if (welcomeMessageLabel != null) {
-            welcomeMessageLabel.setText(name.toUpperCase() + "."); 
+            welcomeMessageLabel.setText(name.toUpperCase() + ".");
         }
+        updateGreeting();
     }
 
-    private void playVideo(String fileName) {
-        try {
-            // FIX: Robust resource loading
-            URL mediaUrl = getClass().getResource("/assets/" + fileName);
-            if (mediaUrl == null) {
-                System.out.println("VIDEO NOT FOUND: " + fileName);
-                return; 
+    private void setupEscapeKeyHandler(Stage stage) {
+        stage.getScene().setOnKeyPressed(event -> {
+            if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                Platform.exit();
+                System.exit(0);
             }
-
-            if (mediaPlayer != null) mediaPlayer.dispose();
-
-            mediaPlayer = new MediaPlayer(new Media(mediaUrl.toExternalForm()));
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-            mediaPlayer.setMute(true); // Mute audio
-            mediaPlayer.setAutoPlay(true);
-            
-            weatherView.setMediaPlayer(mediaPlayer);
-            
-        } catch (Exception e) {
-            System.out.println("Error loading video: " + e.getMessage());
-            e.printStackTrace();
-        }
+        });
     }
-
-    private void setupResizing() {
-        if (rootPane != null && weatherView != null) {
-            // Force video to fill the screen
-            weatherView.fitWidthProperty().bind(rootPane.widthProperty());
-            weatherView.fitHeightProperty().bind(rootPane.heightProperty());
-            weatherView.setPreserveRatio(false); // Stretch to fill
+    
+    private void updateGreeting() {
+        if (greetingLabel != null && welcomeMessageLabel != null) {
+            // Your function returns "Good Morning, Name."
+            // But your UI splits this into two labels: "Good Morning," and "ALEX."
+            
+            // OPTION A: If you want to use the function exactly as written:
+            // String fullGreeting = welcome.welcome_user(currentUserName);
+            // greetingLabel.setText(fullGreeting); // You might need to hide welcomeMessageLabel if you do this
+            
+            // OPTION B (Recommended for your current Layout):
+            // We strip the name out so we can keep your stylish two-line design.
+            String fullGreeting = welcome.welcome_user(""); // Get just "Good Morning, ."
+            
+            // Clean up the string to remove the trailing " ."
+            String prefixOnly = fullGreeting.replace(" .", " "); 
+            
+            greetingLabel.setText(prefixOnly); // Sets "Good Morning,"
+            welcomeMessageLabel.setText(currentUserName.toUpperCase() + "."); // Sets "ALEX."
         }
     }
 
     private void startDynamicClock() {
-        // Updated Format: "WEDNESDAY, DECEMBER 24 | 2:09 AM"
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd  |  h:mm a");
-        
+
         Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             LocalDateTime now = LocalDateTime.now(ZoneId.of("GMT+8"));
             if (dateTimeLabel != null) {
@@ -108,29 +153,21 @@ public class LandingPageController {
         clock.setCycleCount(Timeline.INDEFINITE);
         clock.play();
     }
-    
-    // --- Navigation Methods (Keep existing) ---
+
     @FXML
     protected void handleNewEntry() {
         try {
-            System.out.println("New Entry button clicked");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/journalpage/JournalEditor.fxml"));
-            System.out.println("FXML loader created for JournalEditor");
             Parent root = loader.load();
-            System.out.println("JournalEditor FXML loaded successfully");
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Journal Editor");
-            stage.setScene(new Scene(root));
+
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            Scene newScene = new Scene(root);
+            stage.setScene(newScene);
+
             stage.setFullScreenExitHint("");
             stage.setFullScreen(true);
-            System.out.println("Showing journal editor window");
-            stage.show();
-        } catch (IOException e) { 
-            System.err.println("Error loading journal editor: " + e.getMessage());
-            e.printStackTrace(); 
+
         } catch (Exception e) {
-            System.err.println("Unexpected error opening journal editor: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -138,48 +175,31 @@ public class LandingPageController {
     @FXML
     protected void handleViewSummary() {
         try {
-            System.out.println("View Summary button clicked");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/summary/Summary.fxml"));
-            System.out.println("FXML loader created");
             Parent root = loader.load();
-            System.out.println("FXML loaded successfully");
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Weekly Summary");
-            stage.setScene(new Scene(root));
+
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            Scene newScene = new Scene(root);
+            stage.setScene(newScene);
+
             stage.setFullScreenExitHint("");
             stage.setFullScreen(true);
-            System.out.println("Showing summary window");
-            stage.show();
-        } catch (IOException e) { 
-            System.err.println("Error loading summary window: " + e.getMessage());
-            e.printStackTrace(); 
-        } catch (Exception e) {
-            System.err.println("Unexpected error opening summary: " + e.getMessage());
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // 1. Clear Session
         UserSession.getInstance().logout();
-
         try {
-            // 2. Load Login View
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/registration/Login.fxml"));
             Parent root = loader.load();
-
-            // 3. Get Current Stage
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // 4. Set Scene
             stage.setScene(new Scene(root));
-
-            // 5. FORCE FULL SCREEN (This fixes the "tiny window" issue)
-            stage.setFullScreenExitHint(""); // Optional: Hide the "Press ESC" message
+            stage.setFullScreenExitHint("");
             stage.setFullScreen(true);
-
         } catch (IOException e) {
             e.printStackTrace();
         }

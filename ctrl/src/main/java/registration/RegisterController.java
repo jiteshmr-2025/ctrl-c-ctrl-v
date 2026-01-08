@@ -1,129 +1,105 @@
 package registration;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
-import utils.WeatherBackgroundManager; // Ensure this import is correct
-
+import utils.GlobalVideoManager; // Import the shared manager
+import utils.WeatherBackgroundManager;
 import java.io.IOException;
-import java.util.Objects;
 
 public class RegisterController {
 
-    // --- UI Elements ---
-    @FXML private StackPane rootPane;       // Required for resizing video
-    @FXML private MediaView weatherView;    // The background video
-    @FXML private Label weatherLabel;       // Shows "Current Weather: Rain"
-    
-    @FXML private TextField regEmailField;
-    @FXML private TextField regNameField;
-    @FXML private PasswordField regPasswordField;
-    @FXML private Label errorLabel;
+    @FXML
+    private StackPane rootPane;
+
+    // NEW: Container for the shared video
+    @FXML
+    private StackPane videoContainer;
+
+    @FXML
+    private Label weatherLabel;
+    @FXML
+    private TextField regNameField;
+    @FXML
+    private TextField regEmailField;
+    @FXML
+    private PasswordField regPasswordField;
+    @FXML
+    private Label errorLabel;
 
     private final UserManager userManager = new UserManager();
-    private MediaPlayer mediaPlayer; // Keep reference to prevent garbage collection
 
-    // --- INITIALIZATION (Runs when screen loads) ---
     @FXML
     public void initialize() {
-        // 1. Set default loading state
         weatherLabel.setText("Loading weather...");
-        
-        // 2. Run the Network/File logic in a BACKGROUND Thread
+
+        // 1. Run in background to avoid UI freeze
         new Thread(() -> {
-            
-            // A. Heavy lifting (Network call) happens here, off the UI thread
             String weather = WeatherBackgroundManager.getCurrentWeather();
             String videoFile = WeatherBackgroundManager.getVideoFileForWeather(weather);
 
-            // B. Update the UI on the JavaFX Application Thread
-            javafx.application.Platform.runLater(() -> {
+            // 2. Update UI on JavaFX Thread
+            Platform.runLater(() -> {
                 weatherLabel.setText("Current Weather: " + weather);
-                playVideo(videoFile); // Play video only after we know which one
-                
-                // Resizing logic
-                if (rootPane != null && weatherView != null) {
-                    weatherView.fitWidthProperty().bind(rootPane.widthProperty());
-                    weatherView.fitHeightProperty().bind(rootPane.heightProperty());
-                    weatherView.setPreserveRatio(false); 
-                }
+
+                // Initialize/Update the shared video manager
+                GlobalVideoManager.updateWeatherVideo(videoFile);
+
+                // Attach the shared view to THIS screen
+                attachVideoToBackground();
             });
-            
         }).start();
     }
 
-    // --- VIDEO HELPER ---
-    private void playVideo(String fileName) {
-        try {
-            // Load video from resources/videos folder
-            String path = Objects.requireNonNull(getClass().getResource("/assets/" + fileName)).toExternalForm();
-            
-            // Cleanup old player if exists
-            if (mediaPlayer != null) {
-                mediaPlayer.dispose();
-            }
+    private void attachVideoToBackground() {
+        var sharedView = GlobalVideoManager.getSharedMediaView();
 
-            mediaPlayer = new MediaPlayer(new Media(path));
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop forever
-            mediaPlayer.setMute(true); // Mute sound
-            mediaPlayer.setAutoPlay(true);
-            
-            if (weatherView != null) {
-                weatherView.setMediaPlayer(mediaPlayer);
-            }
-            
-        } catch (Exception e) {
-            System.out.println("Error loading video: " + fileName);
-            e.printStackTrace();
+        if (sharedView != null && videoContainer != null) {
+            // Clear any existing children and add the shared view
+            videoContainer.getChildren().clear();
+            videoContainer.getChildren().add(sharedView);
+
+            // Bind Size (Responsive Background)
+            sharedView.fitWidthProperty().bind(rootPane.widthProperty());
+            sharedView.fitHeightProperty().bind(rootPane.heightProperty());
+            sharedView.setPreserveRatio(false);
+
+            // Send to back so it sits behind the vignette
+            sharedView.toBack();
         }
     }
 
-    // --- REGISTRATION LOGIC (Existing) ---
     @FXML
     private void handleRegister(ActionEvent event) {
-        String email = regEmailField.getText().trim();
         String name = regNameField.getText().trim();
-        String password = regPasswordField.getText();
+        String email = regEmailField.getText().trim();
+        String password = regPasswordField.getText().trim();
 
-        // 1. Validation Logic
-        if (email.isEmpty() || !email.contains(".com")) {
-            showError("Invalid email. Must contain '.com'.");
-            return;
-        }
-        if (name.isEmpty()) {
-            showError("Display name cannot be empty.");
-            return;
-        }
-        if (password.isEmpty()) {
-            showError("Password cannot be empty.");
+        // Basic Validation
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            errorLabel.setText("All fields are required.");
+            errorLabel.setVisible(true);
             return;
         }
 
-        // 2. Check if email exists
-        if (userManager.emailExists(email)) {
-            showError("Email already registered.");
-            return;
-        }
-
-        // 3. Register User
+        // 1. Attempt Registration
         boolean success = userManager.register(email, name, password);
 
         if (success) {
-            System.out.println("Registration Successful for: " + name);
+            System.out.println("Registration Successful: " + name);
+
+            // 2. Auto-Login (Optional) or Redirect to Login
             switchToLogin(event);
         } else {
-            showError("Registration failed. Please try again.");
+            errorLabel.setText("Email already exists.");
+            errorLabel.setVisible(true);
         }
     }
 
@@ -135,11 +111,15 @@ public class RegisterController {
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
+
             stage.setScene(scene);
-            stage.setFullScreen(true); // Keep it full screen
+
+            // Force Full Screen to prevent window resizing glitch
+            stage.setFullScreen(true);
 
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Error loading Login.fxml");
         }
     }
 

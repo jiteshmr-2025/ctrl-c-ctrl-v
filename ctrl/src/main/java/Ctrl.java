@@ -12,7 +12,6 @@ public class Ctrl extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-
         // 1. REMOVE WINDOW BORDERS (Minimize/Close buttons)
         // This must be done before the stage is shown!
         stage.initStyle(StageStyle.UNDECORATED);
