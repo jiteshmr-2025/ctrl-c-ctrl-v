@@ -32,6 +32,8 @@ public class journalApp {
     /**
      * Gets the FULL document (Entry, Weather, Mood) for the GUI. Returns null
      * if no entry exists.
+     * @param date
+     * @return Journal Collection of the first query
      */
     public static Document getJournalDocument(LocalDate date) {
         String email = getCurrentUserEmail();
@@ -41,7 +43,7 @@ public class journalApp {
     }
 
     // --------------------------------
-    // --- EXISTING CLI METHODS ---
+    // --- EXISTING CLI METHODS ------
     public static void saveJournal(LocalDate date, String entry, String weather, String mood) {
         String email = getCurrentUserEmail();
         String dateStr = date.toString();
@@ -68,10 +70,7 @@ public class journalApp {
         }
         return null;
     }
-
-    // ... (Keep your existing main method and CLI logic below if you want to keep the console version) ...
-    // Note: I've omitted the CLI main/runJournalApp/etc here for brevity, 
-    // but you can keep them exactly as they were in your file.
+    
     public static String extractMoodCategory(String fullMood) {
         if (fullMood == null) {
             return "Unknown";
@@ -82,8 +81,7 @@ public class journalApp {
         return fullMood;
     }
 
-    // ... inside journalApp class ...
-    // NEW METHOD: Fetch all journal entries for the timeline
+    // Fetch all journal entries for the timeline
     public static List<Document> getAllUserJournals() {
         String email = getCurrentUserEmail();
         // Find all documents for this user, Sorted by Date (Descending / Newest First)

@@ -54,7 +54,6 @@ public class Ctrl extends Application {
         controller.setUserName(name);
 
         Scene scene = new Scene(root);
-        // scene.getStylesheets().add(...) // Add CSS if needed
 
         stage.setScene(scene);
         stage.setFullScreen(true);

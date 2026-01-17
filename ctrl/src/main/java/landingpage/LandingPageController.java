@@ -57,15 +57,13 @@ public class LandingPageController {
         }
 
         // 2. Setup Enter/Esc Keys
-        rootPane.setOnKeyPressed(event -> {
+        rootPane.setOnKeyPressed((var event) -> {
             switch (event.getCode()) {
-                case ENTER:
-                    handleNewEntry();
-                    break;
-                case ESCAPE:
+                case ENTER -> handleNewEntry();
+                case ESCAPE -> {
                     Platform.exit();
                     System.exit(0);
-                    break;
+                }
             }
         });
 
@@ -167,8 +165,7 @@ public class LandingPageController {
             stage.setFullScreenExitHint("");
             stage.setFullScreen(true);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
         }
     }
 
@@ -186,7 +183,6 @@ public class LandingPageController {
             stage.setFullScreen(true);
 
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -201,7 +197,6 @@ public class LandingPageController {
             stage.setFullScreenExitHint("");
             stage.setFullScreen(true);
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

@@ -17,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
+import javafx.scene.input.KeyCode;
 
 import org.bson.Document; // Import BSON Document
 import registration.UserSession;
@@ -71,6 +72,7 @@ public class JournalEditorController {
             loadJournalForDate(selectedDate);
             selectDateInTimeline(selectedDate);
         });
+        
 
         setupTimelineCellFactory();
         refreshTimeline();
@@ -84,6 +86,40 @@ public class JournalEditorController {
                 datePicker.setValue(newVal.date);
             }
         });
+        
+        Platform.runLater(() -> {
+            Scene scene = journalTextArea.getScene();
+            if (scene != null) {
+                scene.setOnKeyPressed(event -> {
+                    if (event.getCode() == KeyCode.ESCAPE) {
+                        returnToLandingPage();
+                    }
+                });
+            }
+        });
+    }
+    
+    // --- NAVIGATION HELPER (NEW) ---
+    private void returnToLandingPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Landingpage.fxml"));
+            Parent root = loader.load();
+
+            // Use journalTextArea to find the current stage
+            Stage stage = (Stage) journalTextArea.getScene().getWindow();
+            
+            LandingPageController controller = loader.getController();
+            if (UserSession.getInstance().getCurrentUser() != null) {
+                controller.setUserName(UserSession.getInstance().getCurrentUser().getDisplayName());
+            }
+
+            stage.setScene(new Scene(root));
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
+
+        } catch (IOException e) {
+            System.err.println("Error loading Landing Page.");
+        }
     }
 
     // --- CORE LOGIC FIXES ---
@@ -162,11 +198,10 @@ public class JournalEditorController {
                     updateTimelineList(selectedDate, entryText);
                 });
 
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 Platform.runLater(() -> {
                     statusLabel.setText("Error: " + e.getMessage());
                     saveButton.setDisable(false);
-                    e.printStackTrace();
                 });
             }
         }).start();

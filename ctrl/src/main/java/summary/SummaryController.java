@@ -1,11 +1,12 @@
 package summary;
 
+import javafx.application.Platform; // Added for runLater
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode; // Added for KeyCode
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -23,7 +24,6 @@ import java.util.Map;
 
 public class SummaryController {
 
-    @FXML private Label titleLabel;
     @FXML private Label dateRangeLabel;
     
     // Left Pane (Timeline)
@@ -33,7 +33,6 @@ public class SummaryController {
     @FXML private Label dominantMoodLabel;
     @FXML private Label dominantMoodSubtext;
     @FXML private Label weatherSummaryLabel;
-    @FXML private Label weatherSummarySubtext;
     @FXML private Label aiQuoteLabel;
 
     @FXML
@@ -54,9 +53,49 @@ public class SummaryController {
             // Load Data
             loadSummaryData(userEmail);
 
+            // ---------------------------------------------------------
+            // NEW: Escape Key Handler
+            // ---------------------------------------------------------
+            Platform.runLater(() -> {
+                // We can use any node to get the scene, timelineContainer is a safe bet
+                Scene scene = timelineContainer.getScene();
+                if (scene != null) {
+                    scene.setOnKeyPressed(event -> {
+                        if (event.getCode() == KeyCode.ESCAPE) {
+                            returnToLandingPage();
+                        }
+                    });
+                    // Ensure the scene has focus so it catches the key event
+                    timelineContainer.requestFocus();
+                }
+            });
+
         } catch (Exception e) {
             System.err.println("Error initializing summary: " + e.getMessage());
+        }
+    }
+
+    // --- NAVIGATION HELPER (NEW) ---
+    private void returnToLandingPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LandingPage.fxml"));
+            Parent root = loader.load();
+            
+            // Get stage from any UI element
+            Stage stage = (Stage) timelineContainer.getScene().getWindow();
+            
+            LandingPageController controller = loader.getController();
+            if (UserSession.getInstance().getCurrentUser() != null) {
+                controller.setUserName(UserSession.getInstance().getCurrentUser().getDisplayName());
+            }
+            
+            stage.setScene(new Scene(root));
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
+            
+        } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Error loading Landing Page.");
         }
     }
 
@@ -108,7 +147,6 @@ public class SummaryController {
     }
 
     private void setContextualQuote(String mood) {
-        // Simple logic to pick a quote based on mood
         if (mood.equalsIgnoreCase("Positive") || mood.equalsIgnoreCase("Happy")) {
             aiQuoteLabel.setText("\"A fantastic week! Keep riding this wave of positivity.\"");
         } else if (mood.equalsIgnoreCase("Negative") || mood.equalsIgnoreCase("Terrible")) {
@@ -122,8 +160,8 @@ public class SummaryController {
         timelineContainer.getChildren().clear();
 
         DateTimeFormatter dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dayNameFmt = DateTimeFormatter.ofPattern("EEE"); // Mon
-        DateTimeFormatter dayNumFmt = DateTimeFormatter.ofPattern("dd");  // 01
+        DateTimeFormatter dayNameFmt = DateTimeFormatter.ofPattern("EEE"); 
+        DateTimeFormatter dayNumFmt = DateTimeFormatter.ofPattern("dd");  
 
         for (String[] entry : entries) {
             try {
@@ -190,21 +228,7 @@ public class SummaryController {
 
     @FXML
     private void handleClose(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/LandingPage.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            
-            LandingPageController controller = loader.getController();
-            if (UserSession.getInstance().getCurrentUser() != null) {
-                controller.setUserName(UserSession.getInstance().getCurrentUser().getDisplayName());
-            }
-            
-            stage.setScene(new Scene(root));
-            stage.setFullScreenExitHint("");
-            stage.setFullScreen(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Now uses the helper method
+        returnToLandingPage();
     }
 }

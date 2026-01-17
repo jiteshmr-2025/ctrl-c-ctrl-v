@@ -118,7 +118,6 @@ public class RegisterController {
             stage.setFullScreen(true);
 
         } catch (IOException e) {
-            e.printStackTrace();
             System.err.println("Error loading Login.fxml");
         }
     }

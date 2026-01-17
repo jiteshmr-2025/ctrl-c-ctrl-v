@@ -4,7 +4,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
-import java.util.Objects;
 
 public class GlobalVideoManager {
 
@@ -15,6 +14,7 @@ public class GlobalVideoManager {
     /**
      * Prepares the video based on the weather.
      * If the requested video is ALREADY playing, it does nothing (Zero Lag).
+     * @param videoFileName
      */
     public static void updateWeatherVideo(String videoFileName) {
         // Optimization: If the correct video is already playing, don't reload it!
@@ -48,13 +48,13 @@ public class GlobalVideoManager {
 
         } catch (Exception e) {
             System.err.println("Error loading video: " + videoFileName);
-            e.printStackTrace();
         }
     }
 
     /**
      * Returns the shared MediaView.
      * It automatically removes itself from any previous screen to prevent "Duplicate Node" errors.
+     * @return 
      */
     public static MediaView getSharedMediaView() {
         if (mediaView == null) return null;

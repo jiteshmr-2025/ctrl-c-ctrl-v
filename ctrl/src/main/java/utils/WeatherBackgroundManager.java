@@ -8,8 +8,6 @@ import java.time.format.DateTimeFormatter;
 public class WeatherBackgroundManager {
     // --- CACHING VARIABLES ---
     private static String cachedWeather = null;
-    private static long lastFetchTime = 0;
-    private static final long CACHE_DURATION = 15 * 60 * 1000; // 15 Minutes in milliseconds
 
     // Original method - gets today's weather
     public static String getCurrentWeather() {
@@ -53,7 +51,7 @@ public class WeatherBackgroundManager {
             // Update cache if this is today's date
             if (date.equals(LocalDate.now())) {
                 cachedWeather = weather;
-                lastFetchTime = System.currentTimeMillis();
+                System.currentTimeMillis();
             }
             
             return weather;
@@ -69,18 +67,10 @@ public class WeatherBackgroundManager {
         if (weather == null) {
             weather = "Unknown";
         }
-        switch (weather) {
-            case "Sunny":
-            case "No rain":
-            case "Partly cloudy":
-                return "clear.mp4";
-            case "Rain":
-            case "Heavy rain":
-            case "Drizzle":
-            case "Thunderstorms":
-                return "rain.mp4";
-            default:
-                return "cloudy.mp4";
-        }
+        return switch (weather) {
+            case "Sunny", "No rain", "Partly cloudy" -> "clear.mp4";
+            case "Rain", "Heavy rain", "Drizzle", "Thunderstorms" -> "rain.mp4";
+            default -> "cloudy.mp4";
+        };
     }
 }
