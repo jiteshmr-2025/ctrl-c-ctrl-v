@@ -8,31 +8,22 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode; // Import KeyCode
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import utils.GlobalVideoManager; // Import the shared manager
+import utils.GlobalVideoManager;
 import utils.WeatherBackgroundManager;
 import java.io.IOException;
 
 public class RegisterController {
 
-    @FXML
-    private StackPane rootPane;
-
-    // NEW: Container for the shared video
-    @FXML
-    private StackPane videoContainer;
-
-    @FXML
-    private Label weatherLabel;
-    @FXML
-    private TextField regNameField;
-    @FXML
-    private TextField regEmailField;
-    @FXML
-    private PasswordField regPasswordField;
-    @FXML
-    private Label errorLabel;
+    @FXML private StackPane rootPane;
+    @FXML private StackPane videoContainer;
+    @FXML private Label weatherLabel;
+    @FXML private TextField regNameField;
+    @FXML private TextField regEmailField;
+    @FXML private PasswordField regPasswordField;
+    @FXML private Label errorLabel;
 
     private final UserManager userManager = new UserManager();
 
@@ -45,33 +36,44 @@ public class RegisterController {
             String weather = WeatherBackgroundManager.getCurrentWeather();
             String videoFile = WeatherBackgroundManager.getVideoFileForWeather(weather);
 
-            // 2. Update UI on JavaFX Thread
             Platform.runLater(() -> {
                 weatherLabel.setText("Current Weather: " + weather);
-
-                // Initialize/Update the shared video manager
                 GlobalVideoManager.updateWeatherVideo(videoFile);
-
-                // Attach the shared view to THIS screen
                 attachVideoToBackground();
             });
         }).start();
+
+        // 2. Add Key Listeners (Escape & Enter)
+        Platform.runLater(() -> {
+            Scene scene = rootPane.getScene();
+            if (scene != null) {
+                scene.setOnKeyPressed(event -> {
+                    // ESCAPE: Close the application
+                    if (event.getCode() == KeyCode.ESCAPE) {
+                        Platform.exit();
+                        System.exit(0);
+                    }
+                    // ENTER: Trigger Registration
+                    else if (event.getCode() == KeyCode.ENTER) {
+                        handleRegister(null); // Pass null as we refactored the method
+                    }
+                });
+                
+                // Optional: Focus the Name field first
+                regNameField.requestFocus();
+            }
+        });
     }
 
     private void attachVideoToBackground() {
         var sharedView = GlobalVideoManager.getSharedMediaView();
 
         if (sharedView != null && videoContainer != null) {
-            // Clear any existing children and add the shared view
             videoContainer.getChildren().clear();
             videoContainer.getChildren().add(sharedView);
-
-            // Bind Size (Responsive Background)
             sharedView.fitWidthProperty().bind(rootPane.widthProperty());
             sharedView.fitHeightProperty().bind(rootPane.heightProperty());
             sharedView.setPreserveRatio(false);
-
-            // Send to back so it sits behind the vignette
             sharedView.toBack();
         }
     }
@@ -94,8 +96,7 @@ public class RegisterController {
 
         if (success) {
             System.out.println("Registration Successful: " + name);
-
-            // 2. Auto-Login (Optional) or Redirect to Login
+            // 2. Redirect to Login
             switchToLogin(event);
         } else {
             errorLabel.setText("Email already exists.");
@@ -109,16 +110,16 @@ public class RegisterController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/registration/Login.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            // FIX: Get stage from a UI element (regNameField) so it works with Enter key
+            Stage stage = (Stage) regNameField.getScene().getWindow();
+            
             Scene scene = new Scene(root);
-
             stage.setScene(scene);
-
-            // Force Full Screen to prevent window resizing glitch
             stage.setFullScreen(true);
 
         } catch (IOException e) {
             System.err.println("Error loading Login.fxml");
+            e.printStackTrace();
         }
     }
 
