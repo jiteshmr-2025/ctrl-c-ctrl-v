@@ -1,5 +1,11 @@
 package summary;
-
+/**
+ *
+ * @author ekitstrap
+ * @author chee
+ * @author zayn
+ */
+import java.io.IOException;
 import javafx.application.Platform; // Added for runLater
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -93,8 +99,7 @@ public class SummaryController {
             stage.setFullScreenExitHint("");
             stage.setFullScreen(true);
             
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
             System.err.println("Error loading Landing Page.");
         }
     }

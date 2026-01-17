@@ -1,4 +1,11 @@
 package utils;
+
+/**
+ *
+ * @author ekitstrap
+ */
+
+
 import weather.API_Get;
 import org.json.JSONArray;
 import org.json.JSONObject;

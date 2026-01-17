@@ -1,4 +1,8 @@
 package utils;
+/**
+ *
+ * @author ekitstrap
+ */
 
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;

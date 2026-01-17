@@ -1,11 +1,15 @@
 package registration;
-
+/**
+ *
+ * @author chee
+ * @author zayn
+ */
 import java.io.*;
 import java.security.*;
 import java.util.*;
 
 public class UserManager {
-    private final String filePath = "ctrl/src/registration/UserData.txt";
+    private final String filePath = "UserData.txt";
     private final ArrayList<User> users = new ArrayList<>();
 
     public UserManager() {

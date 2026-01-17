@@ -7,7 +7,10 @@ import javafx.stage.StageStyle;
 import registration.UserManager;
 import registration.UserSession;
 import landingpage.LandingPageController; // Import this!
-
+/**
+ *
+ * @author ekitstrap
+ */
 public class Ctrl extends Application {
 
     @Override

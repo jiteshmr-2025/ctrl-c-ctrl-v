@@ -1,5 +1,8 @@
 package registration;
-
+/**
+ *
+ * @author chee
+ */
 public class User {
     
     private final String email;

@@ -1,5 +1,10 @@
 package journalpage;
-
+/**
+ *
+ * @author chee
+ * @author zayn
+ * @author xuzhe
+ */
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -1,16 +1,18 @@
 package journalpage;
-
+/**
+ *
+ * @author xuzhe
+ * @author chee
+ * @author zayn
+ */
 import java.util.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
-import mood.MoodAnalyzer;
 import registration.UserSession;
 import utils.MongoDBConnection;
-import utils.WeatherBackgroundManager;
 
 public class journalApp {
 

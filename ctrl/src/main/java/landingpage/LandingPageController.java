@@ -1,5 +1,10 @@
 package landingpage;
-
+/**
+ *
+ * @author mingdao
+ * @author ekitstrap
+ * @author chee
+ */
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
