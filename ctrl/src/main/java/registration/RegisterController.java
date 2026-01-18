@@ -94,6 +94,13 @@ public class RegisterController {
             return;
         }
 
+            // Check email format
+            if (!userManager.isValidEmail(email)) {
+                errorLabel.setText("Invalid email format. Please use: name@domain.com");
+                errorLabel.setVisible(true);
+                return;
+            }
+
         // 1. Attempt Registration
         boolean success = userManager.register(email, name, password);
 

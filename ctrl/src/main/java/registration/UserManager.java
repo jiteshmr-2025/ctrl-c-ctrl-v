@@ -92,6 +92,12 @@ public class UserManager {
 }
 
 
+    public boolean isValidEmail(String email) {
+        // Basic email validation regex pattern
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email != null && email.matches(emailRegex);
+    }
+
     public boolean emailExists(String email) {
         for (User u : users) {
             if (u.getEmail().equalsIgnoreCase(email)) {
@@ -102,6 +108,7 @@ public class UserManager {
     }
 
     public boolean register(String email, String displayName, String password) {
+        if (!isValidEmail(email)) return false; // Validate email format
         if (emailExists(email)) return false;
         String salt = generateSalt();
         String hashed = hashPassword(password, salt);
@@ -111,6 +118,7 @@ public class UserManager {
     }
 
     public User login(String email, String password) {
+        if (!isValidEmail(email)) return null; // Validate email format
         for (User u : users) {
             if (u.getEmail().equalsIgnoreCase(email)) {
                 String hashedInput = hashPassword(password, u.getSalt());
