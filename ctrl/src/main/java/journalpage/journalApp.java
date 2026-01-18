@@ -2,8 +2,6 @@ package journalpage;
 /**
  *
  * @author xuzhe
- * @author chee
- * @author zayn
  */
 import java.util.*;
 import java.time.*;

@@ -1,8 +1,7 @@
 package journalpage;
 /**
  *
- * @author chee
- * @author zayn
+ * @author ekitstrap
  * @author xuzhe
  */
 import java.io.IOException;

@@ -1,7 +1,7 @@
 package mood;
 /**
  *
- * @author chee
+ * @author zayn
  */
 import utils.EnvLoader;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class MoodAnalyzer {
             return moodLabel + " (" + String.format("%.0f%%", moodScore * 100) + ")";
 
         } catch (Exception e) {
-            e.printStackTrace(); // shows full details in console/log
+            // shows full details in console/log
             return "Error: " + e.getMessage();
         }
     }

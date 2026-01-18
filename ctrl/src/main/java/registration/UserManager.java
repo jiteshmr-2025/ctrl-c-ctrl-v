@@ -2,7 +2,6 @@ package registration;
 /**
  *
  * @author chee
- * @author zayn
  */
 import java.io.*;
 import java.security.*;

@@ -1,8 +1,7 @@
 package registration;
 /**
  *
- * @author xuzhe
- * @author ekitstrap
+ * @author chee
  */
 import java.io.*;
 import java.nio.file.Files;

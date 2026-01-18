@@ -3,7 +3,6 @@ package landingpage;
  *
  * @author mingdao
  * @author ekitstrap
- * @author chee
  */
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -18,7 +17,6 @@ import javafx.stage.Stage;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -125,15 +123,9 @@ public class LandingPageController {
     
     private void updateGreeting() {
         if (greetingLabel != null && welcomeMessageLabel != null) {
-            // Your function returns "Good Morning, Name."
+            // Our function, welcome _user returns "Good Morning, Name."
             // But your UI splits this into two labels: "Good Morning," and "ALEX."
-            
-            // OPTION A: If you want to use the function exactly as written:
-            // String fullGreeting = welcome.welcome_user(currentUserName);
-            // greetingLabel.setText(fullGreeting); // You might need to hide welcomeMessageLabel if you do this
-            
-            // OPTION B (Recommended for your current Layout):
-            // We strip the name out so we can keep your stylish two-line design.
+            // We strip the name out so we can keep the stylish two-line design.
             String fullGreeting = welcome.welcome_user(""); // Get just "Good Morning, ."
             
             // Clean up the string to remove the trailing " ."

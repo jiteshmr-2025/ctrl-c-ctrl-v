@@ -1,7 +1,7 @@
 package mood;
 /**
  *
- * @author chee
+ * @author zayn
  */
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

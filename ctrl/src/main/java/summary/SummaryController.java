@@ -2,8 +2,7 @@ package summary;
 /**
  *
  * @author ekitstrap
- * @author chee
- * @author zayn
+ * @author mingdao
  */
 import java.io.IOException;
 import javafx.application.Platform; // Added for runLater

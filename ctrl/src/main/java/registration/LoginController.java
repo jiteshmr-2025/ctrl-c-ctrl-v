@@ -2,6 +2,7 @@ package registration;
 /**
  *
  * @author ekitstrap
+ * @author zayn
  */
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
